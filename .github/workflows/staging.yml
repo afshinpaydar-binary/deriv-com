@@ -3,14 +3,12 @@ name: Staging Environment
 on: [push]
 
 jobs:
-  git-checkout-from-cache:
+  staging-deriv-com:
     runs-on: ubuntu-18.04
     steps:
-      - name: test
-        run: |
-          ls -lha
-          pwd
-      - name: check version
-        run: |
-          node -v
-          npm -v
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: npm test
+        run: npm test
+      - name: Build
+        run: npm run build
