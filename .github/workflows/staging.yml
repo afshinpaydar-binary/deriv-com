@@ -6,11 +6,18 @@ jobs:
   staging-deriv-com:
     runs-on: ubuntu-18.04
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+      - name: Display structure of downloaded files
+        run: ls -R
       - name: Install npm packages
         run: npm ci
       - name: npm test
         run: npm test
       - name: Build
         run: npm run build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
