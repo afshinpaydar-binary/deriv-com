@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches:
-      - '!staging'
-      - '!production'
+    branches-ignore:
+      - staging.*
+      - production.*
 env:
   GATSBY_CPU_COUNT: 2
   GATSBY_MAP_API_KEY: ${GATSBY_MAP_API_KEY}
