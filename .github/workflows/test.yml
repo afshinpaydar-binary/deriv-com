@@ -1,0 +1,29 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '!staging'
+      - '!production'
+env:
+  GATSBY_CPU_COUNT: 2
+  GATSBY_MAP_API_KEY: ${GATSBY_MAP_API_KEY}
+  GATSBY_ENV: staging
+
+jobs:
+  test:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm test
