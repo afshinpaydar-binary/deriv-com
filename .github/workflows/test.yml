@@ -39,6 +39,8 @@ jobs:
       run: npm ci
     - run: npm run build
     - run: npm test
+    - name: List
+      run: ls -R .npm-packages
 
 
 
