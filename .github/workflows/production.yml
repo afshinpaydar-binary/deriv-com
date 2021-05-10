@@ -2,7 +2,6 @@ name: Production Environment
 
 on:
   push:
-    branches: [ main, afshin/github_action ]
     tags:
       - production.*
     paths-ignore:
@@ -14,6 +13,7 @@ env:
 
 jobs:
   build_and_test:
+    if: github.event.base_ref == 'refs/heads/master'
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
