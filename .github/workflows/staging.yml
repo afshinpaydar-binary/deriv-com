@@ -15,8 +15,9 @@ env:
   GATSBY_ENV: staging
 
 jobs:
-  build-and-deploy:
-#    if: github.event.base_ref == 'refs/heads/master'
+  release-staging:
+#   if: github.event.base_ref == 'refs/heads/master'
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -41,7 +42,7 @@ jobs:
       - run: npm run build
 
       - name: Building docker image 🐳
-        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest .
+        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging  -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:${{ steps.docker_build.outputs.digest }} . 
 
       - name: Pushing Image to docker hub 🐳
         run: |

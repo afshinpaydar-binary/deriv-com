@@ -1,4 +1,4 @@
-name: Production Environment
+name: Release Production
 
 on:
   create:
@@ -15,32 +15,37 @@ env:
   GATSBY_ENV: production
 
 jobs:
-  build_and_test:
-#    if: github.event.base_ref == 'refs/heads/master'
-    if: github.event.base_ref == 'refs/heads/afshin/github_action'
-    timeout-minutes: 30
+  release-production:
+#   if: github.event.base_ref == 'refs/heads/master'
+    timeout-minutes: 20
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Compress git objects
-        run: git gc
-      - name: Cache git objects
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2.3.1
+      
+      - name: Setup Node
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: '12.x'
+
+      - name: Cache dependencies
         uses: actions/cache@v2
         with:
-          path: .git
-          key: source-v1-${GITHUB_REF#refs/heads/}-${GITHUB_SHA}
-      - name: npm install, build, and test
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+          
+      - run: npm ci
+      - run: npm run format
+      - run: npm run test
+      - run: npm run build
+
+      - name: Building docker image 🐳
+        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:${{ steps.docker_build.outputs.digest }} .
+
+      - name: Pushing Image to docker hub 🐳
         run: |
-          npm install
-          npm run build --if-present
-          npm test
-      - name: List files
-        run: ls -R
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist-without-markdown
-          path: |
-            dist
-            !dist/**/*.md
+          echo ${{ secrets.DOCKERHUB_TOKEN }}| docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com
