@@ -42,7 +42,7 @@ jobs:
       - run: npm run build
 
       - name: Building docker image 🐳
-        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:${{ steps.docker_build.outputs.digest }} .
+        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:${GITHUB_REF#refs/heads/} .
 
       - name: Pushing Image to docker hub 🐳
         run: |
