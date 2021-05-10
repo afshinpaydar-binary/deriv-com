@@ -2,9 +2,10 @@ name: Production Environment
 
 on:
   push:
-    branches: [ main ]
     tags:
       - production.*
+    paths-ignore:
+      - '**.md' 
 
 env:
   GATSBY_CPU_COUNT: 2
@@ -12,6 +13,7 @@ env:
 
 jobs:
   build_and_test:
+    if: github.event.base_ref == 'refs/heads/master'
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
