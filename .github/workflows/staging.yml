@@ -1,6 +1,9 @@
 name: Staging Environment
 
 on:
+  create:
+    tags:
+      - staging.*
   push:
     tags:
       - staging.*
