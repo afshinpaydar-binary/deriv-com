@@ -1,0 +1,40 @@
+name: Production Environment
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - '^production.*'
+
+env:
+  GATSBY_CPU_COUNT: 2
+  GATSBY_ENV: production
+
+jobs:
+  build_and_test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Compress git objects
+        run: git gc
+      - name: Cache git objects
+        uses: actions/cache@v2
+        with:
+          path: .git
+          key: source-v1-${GITHUB_REF#refs/heads/}-${GITHUB_SHA}
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npm run build --if-present
+          npm test
+      - name: List files
+        run: ls -R
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-without-markdown
+          path: |
+            dist
+            !dist/**/*.md
