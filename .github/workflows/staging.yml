@@ -37,11 +37,6 @@ jobs:
       - run: npm run test
       - run: npm run build
 
-      - name: Install and Build 🔧
-        run: |
-          npm install
-          npm run build
-
       - name: Login to DockerHub 🐳
         uses: docker/login-action@v1 
         with:
