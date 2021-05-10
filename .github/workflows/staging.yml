@@ -17,7 +17,6 @@ env:
 jobs:
   build-and-deploy:
 #    if: github.event.base_ref == 'refs/heads/master'
-    if: github.event.base_ref == 'refs/heads/afshin/github_action'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
