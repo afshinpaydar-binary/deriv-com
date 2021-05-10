@@ -1,6 +1,9 @@
 name: Production Environment
 
 on:
+  create:
+    tags:
+      - production.*
   push:
     tags:
       - production.*
