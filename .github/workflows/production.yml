@@ -18,7 +18,6 @@ jobs:
   release-production:
 #   if: github.event.base_ref == 'refs/heads/master'
     timeout-minutes: 20
-    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
