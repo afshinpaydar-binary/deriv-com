@@ -38,7 +38,6 @@ jobs:
         uses: wearerequired/lint-action@v1
         with:
           eslint: true
-          prettier: true
 
     # - name: Install dependencies
     #   if: steps.cache.outputs.cache-hit != 'true'
