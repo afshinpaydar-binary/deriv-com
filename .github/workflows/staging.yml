@@ -2,9 +2,11 @@ name: Staging Environment
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, afshin/github_action ]
     tags:
       - staging.*
+    paths-ignore:
+      - '**.md' 
 
 env:
   GATSBY_CPU_COUNT: 2
