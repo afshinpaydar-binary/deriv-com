@@ -33,18 +33,15 @@ jobs:
           path: ./node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
       - name: Install Node.js dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm test
+          npm run format-check
+          npm run build
       - name: Run linters
         uses: wearerequired/lint-action@v1
         with:
           eslint: true
-
-    # - name: Install dependencies
-    #   if: steps.cache.outputs.cache-hit != 'true'
-    #   run: npm ci
-    # - run: npm run build
-    # - run: npm run format-check
-    # - run: npm test
 
 
 
