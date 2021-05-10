@@ -2,9 +2,8 @@ name: Staging Environment
 
 on:
   push:
-    branches: [ main, afshin/github_action ]
     tags:
-      - '^staging.*'
+      - staging.*
     paths-ignore:
       - '**.md' 
 
@@ -14,6 +13,7 @@ env:
 
 jobs:
   build-and-deploy:
+    if: github.event.base_ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -37,6 +37,8 @@ jobs:
       - run: npm run test
       - run: npm run build
 
+      - name: Check files
+        run: ls -lha
       - name: Login to DockerHub 🐳
         uses: docker/login-action@v1 
         with:
