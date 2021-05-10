@@ -2,14 +2,15 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
 import { useStaticQuery, graphql } from 'gatsby'
-import { LocaleContext, localize } from '../localization'
+import { LocaleContext } from '../localization'
 import language_config from '../../../i18n-config'
 import TradingImage from 'images/common/practice.png'
 
-const is_browser = typeof window !== 'undefined'
+const non_localized_links = ['/careers', '/careers/']
 
 const languages = Object.keys(language_config)
-const SEO = ({ description, meta, title, no_index }) => {
+languages.push('x-default')
+const SEO = ({ description, meta, title, no_index, has_organization_schema, meta_attributes }) => {
     let queries = []
     queries = useStaticQuery(
         graphql`
@@ -19,35 +20,55 @@ const SEO = ({ description, meta, title, no_index }) => {
                         title
                         description
                         author
+                        siteUrl
                     }
                 }
             }
         `,
     )
-
+    const no_index_staging = process.env.GATSBY_ENV === 'staging'
     const metaDescription = description || queries.site.siteMetadata.description
-    const { locale: lang } = React.useContext(LocaleContext)
+    const site_url = queries.site.siteMetadata.siteUrl
+    const { locale: lang, pathname } = React.useContext(LocaleContext)
+    const locale_pathname = pathname.charAt(0) === '/' ? pathname : `/${pathname}`
 
-    const links = []
-    if (is_browser) {
-        let page, l
-        let currentPage = window.location.href.split('/')[3]
-        if (window.location.href.split('/')[4])
-            currentPage = currentPage + '/' + window.location.href.split('/')[4]
-        const pages = []
-        pages.push('/' + currentPage)
-        for (l in languages) {
-            pages.push('/' + languages[l] + '/' + currentPage)
+    let is_ach_page = false
+    let current_page = ''
+    let organization_schema = {}
+
+    if (locale_pathname) {
+        const path_array = locale_pathname.split('/')
+        const current_lang = path_array[1]
+        const check_lang = current_lang.replace('-', '_')
+        current_page = locale_pathname
+
+        if (languages.includes(check_lang)) {
+            path_array.splice(1, 1)
+            current_page = path_array.join('/')
         }
+        if (current_lang === 'ach') is_ach_page = true
+    }
 
-        for (page in pages) {
-            const link = {}
-            link.rel = 'alternate'
-            link.href = "https://deriv.com"+pages[page]
-            link.hreflang = pages[page].split('/')[1]
-            links.push(link)
+    if (has_organization_schema) {
+        organization_schema = {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Deriv',
+            alternateName: 'Deriv.com',
+            url: 'https://deriv.com',
+            logo: 'https://deriv.com/static/1b57a116945933314eefeec0030c8e9d/2a4de/logo.png',
+            sameAs: [
+                'https://www.facebook.com/derivdotcom',
+                'https://www.twitter.com/derivdotcom',
+                'https://www.instagram.com/deriv_official',
+                'https://youtube.com/c/Derivdotcom',
+                'https://www.linkedin.com/company/derivdotcom/',
+                'https://deriv.com',
+            ],
         }
     }
+
+    const is_non_localized = non_localized_links.includes(current_page)
 
     return (
         <Helmet
@@ -55,23 +76,11 @@ const SEO = ({ description, meta, title, no_index }) => {
                 lang,
             }}
             title={title}
-            titleTemplate={`%s | ${queries.site.siteMetadata.title}`}
             defer={false}
-            link={links}
             meta={[
                 {
                     name: 'description',
                     content: metaDescription,
-                },
-                {
-                    name: 'keywords',
-                    content: localize(
-                        'digital options, forex, forex trading, online trading, financial trading, digitals trading, index trading, trading indices, forex trades, trading commodities, digital options strategy, binary broker, binary bet, digital options trading platform, binary strategy, finance, investment, trading',
-                    ),
-                },
-                {
-                    name: 'viewport',
-                    content: 'width=device-width, initial-scale=1.0',
                 },
                 {
                     name: 'google',
@@ -79,7 +88,7 @@ const SEO = ({ description, meta, title, no_index }) => {
                 },
                 {
                     property: 'og:title',
-                    content: title,
+                    content: meta_attributes?.og_title || title,
                 },
                 {
                     property: 'og:site_name',
@@ -87,11 +96,11 @@ const SEO = ({ description, meta, title, no_index }) => {
                 },
                 {
                     property: 'og:description',
-                    content: metaDescription,
+                    content: meta_attributes?.og_description || metaDescription,
                 },
                 {
                     property: 'og:type',
-                    content: 'website',
+                    content: meta_attributes?.og_type || 'website',
                 },
                 {
                     property: 'og:locale',
@@ -99,15 +108,15 @@ const SEO = ({ description, meta, title, no_index }) => {
                 },
                 {
                     property: 'og:image',
-                    content: TradingImage,
+                    content: meta_attributes?.og_img || TradingImage,
                 },
                 {
                     property: 'og:image:width',
-                    content: '723',
+                    content: meta_attributes?.og_img_width || '723',
                 },
                 {
                     property: 'og:image:height',
-                    content: '423',
+                    content: meta_attributes?.og_img_height || '423',
                 },
                 {
                     name: 'twitter:card',
@@ -137,7 +146,7 @@ const SEO = ({ description, meta, title, no_index }) => {
                     name: 'referrer',
                     content: 'origin',
                 },
-                ...(no_index
+                ...(no_index || no_index_staging || is_ach_page
                     ? [
                           {
                               name: 'robots',
@@ -146,7 +155,31 @@ const SEO = ({ description, meta, title, no_index }) => {
                       ]
                     : []),
             ].concat(meta)}
-        ></Helmet>
+        >
+            {has_organization_schema && (
+                <script type="application/ld+json">{JSON.stringify(organization_schema)}</script>
+            )}
+
+            {!is_non_localized &&
+                languages.map((locale) => {
+                    if (!(locale === 'ach')) {
+                        const replaced_local = locale.replace('_', '-')
+                        const is_default = locale === 'en' || locale === 'x-default'
+                        const href_lang = is_default ? '' : `/${replaced_local}`
+                        const href = `${site_url}${href_lang}${current_page}`
+
+                        return (
+                            <link
+                                rel="alternate"
+                                // eslint-disable-next-line react/no-unknown-property
+                                hreflang={replaced_local}
+                                href={href}
+                                key={replaced_local}
+                            />
+                        )
+                    }
+                })}
+        </Helmet>
     )
 }
 
@@ -156,7 +189,9 @@ SEO.defaultProps = {
 
 SEO.propTypes = {
     description: PropTypes.string,
+    has_organization_schema: PropTypes.bool,
     meta: PropTypes.arrayOf(PropTypes.object),
+    meta_attributes: PropTypes.object,
     no_index: PropTypes.bool,
     title: PropTypes.string.isRequired,
 }

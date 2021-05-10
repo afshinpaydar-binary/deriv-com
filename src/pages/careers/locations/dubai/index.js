@@ -4,7 +4,7 @@ import { dubai } from '../../_model/_locations/_locations'
 import { LocationLayout } from '../_location-layout'
 import { SEO } from 'components/containers'
 import Layout from 'components/layout/layout'
-import { WithIntl } from 'components/localization'
+import { localize, WithIntl } from 'components/localization'
 
 const query = graphql`
     query {
@@ -26,7 +26,7 @@ const query = graphql`
         dubai_grid_4: file(relativePath: { eq: "careers/dubai_grid_4.png" }) {
             ...fadeIn
         }
-        map_dubai: file(relativePath: { eq: "careers/map_dubai.png" }) {
+        map_dubai: file(relativePath: { eq: "careers/maps/map-dubai.png" }) {
             ...fadeIn
         }
     }
@@ -36,8 +36,13 @@ const Dubai = () => {
     const images = useStaticQuery(query)
 
     return (
-        <Layout type="careers" padding_top="10rem">
-            <SEO title={dubai.display_name} />
+        <Layout type="careers">
+            <SEO
+                title={localize('Dubai | Our office – UAE | Deriv')}
+                description={localize(
+                    'Browse job opportunities available at our Dubai office. Find your role in IT, marketing, and human resources.',
+                )}
+            />
             <LocationLayout location={dubai} images={images} />
         </Layout>
     )

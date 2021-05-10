@@ -66,7 +66,7 @@ const SignupSimple = ({
                             error={email_error_msg}
                             value={email}
                             label={localize('E-mail address')}
-                            placeholder={'example@.parameters.com'}
+                            placeholder={'example@mail.com'}
                             handleError={clearEmail}
                             onChange={handleInputChange}
                             onBlur={handleValidation}
@@ -76,7 +76,12 @@ const SignupSimple = ({
                             required
                         />
                     </InputWrapper>
-                    <EmailButton type="submit" secondary="true" disabled={is_submitting}>
+                    <EmailButton
+                        id="gtm-signup-email"
+                        type="submit"
+                        secondary="true"
+                        disabled={is_submitting}
+                    >
                         {localize('Sign up')}
                     </EmailButton>
                 </InputGroup>

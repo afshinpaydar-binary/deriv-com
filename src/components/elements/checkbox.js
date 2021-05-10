@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import device from 'themes/device.js'
 
 const CheckboxContainer = styled.div`
     display: inline-block;
@@ -9,11 +10,12 @@ const CheckboxContainer = styled.div`
 
 const Icon = styled.svg`
     fill: none;
-    stroke: ${props => {
+    stroke: ${(props) => {
         if (props.secondary) return 'var(--color-white)'
-        return 'var(--color-black)'
+        return 'var(--color-white)'
     }};
     stroke-width: 4px;
+    background-color: var(--color-red);
 `
 
 const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
@@ -26,27 +28,28 @@ const StyledCheckbox = styled.div`
     display: inline-block;
     width: 1.6rem;
     height: 1.6rem;
-    background: ${props => {
+    background: ${(props) => {
         if (props.secondary && props.checked) return 'var(--color-red)'
         return 'var(--color-white)'
     }};
-    border: ${props => {
+    border: ${(props) => {
         if (props.secondary && props.checked) return '2px solid var(--color-red)'
         return '2px solid var(--color-grey-5)'
     }};
-    border-radius: 3px;
     margin-right: 0.8rem;
 
-    /* border: ${props =>
-        props.secondary ? '2px solid var(--color-red)' : '2px solid var(--grey-5)'}; */
-
     ${Icon} {
-        visibility: ${props => (props.checked ? 'visible' : 'hidden')};
+        visibility: ${(props) => (props.checked ? 'visible' : 'hidden')};
+    }
+
+    @media ${device.mobileL} {
+        width: 2rem;
+        height: 2rem;
     }
 `
 
-const Checkbox = ({ checked, secondary, ...props }) => (
-    <CheckboxContainer>
+const Checkbox = ({ checked, secondary, id, ...props }) => (
+    <CheckboxContainer id={id}>
         <HiddenCheckbox checked={checked} {...props} />
         <StyledCheckbox checked={checked} secondary={secondary}>
             <Icon viewBox="0 0 24 24" secondary={secondary}>
@@ -58,6 +61,7 @@ const Checkbox = ({ checked, secondary, ...props }) => (
 
 Checkbox.propTypes = {
     checked: PropTypes.bool,
+    id: PropTypes.string,
     secondary: PropTypes.bool,
 }
 

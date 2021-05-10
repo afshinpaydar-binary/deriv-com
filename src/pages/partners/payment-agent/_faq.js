@@ -5,24 +5,30 @@ import { SectionContainer } from 'components/containers'
 import { localize } from 'components/localization'
 import { Header, Accordion, AccordionItem } from 'components/elements'
 import DotPattern from 'images/svg/dot-pattern.svg'
+import device from 'themes/device'
 
 const AccordionWrapper = styled.div`
     max-width: 99.6rem;
     margin: 0 auto;
     position: relative;
     z-index: 2;
+
+    @media ${device.tablet} {
+        margin: 0 16px;
+    }
 `
 
 const RelativeContainer = styled(SectionContainer)`
     position: relative;
+    overflow: hidden;
 `
 
-const TopLeftDot = styled(DotPattern)`
+const TopLeftDot = styled.img`
     position: absolute;
     top: 4px;
     left: 0;
 `
-const BottomRightDot = styled(DotPattern)`
+const BottomRightDot = styled.img`
     position: absolute;
     bottom: 16px;
     right: 0;
@@ -42,11 +48,11 @@ const Faq = () => {
     }
     return (
         <RelativeContainer>
-            <Header font_size="3.6rem" margin="0 0 4rem 0" align="center">
+            <Header size="3.6rem" mb="4rem" align="center">
                 {localize('FAQs')}
             </Header>
             <AccordionWrapper>
-                <Accordion>
+                <Accordion has_single_state>
                     <AccordionItem
                         header={localize('General')}
                         parent_style={parent_style}
@@ -54,7 +60,7 @@ const Faq = () => {
                         header_style={header_style}
                         plus
                     >
-                        {General}
+                        {<General />}
                     </AccordionItem>
                     <AccordionItem
                         header={localize('Account management')}
@@ -62,12 +68,12 @@ const Faq = () => {
                         header_style={header_style}
                         plus
                     >
-                        {AccountManagement}
+                        {<AccountManagement />}
                     </AccordionItem>
                 </Accordion>
             </AccordionWrapper>
-            <TopLeftDot />
-            <BottomRightDot />
+            <TopLeftDot src={DotPattern} />
+            <BottomRightDot src={DotPattern} />
         </RelativeContainer>
     )
 }

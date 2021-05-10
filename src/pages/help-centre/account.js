@@ -1,77 +1,52 @@
 import React from 'react'
 import styled from 'styled-components'
-import { getLanguage } from '../../common/utility'
 import { Article } from './_article'
-import { deriv_app_url } from 'common/utility'
-import { Text, Header } from 'components/elements/typography'
+import { ArticleWrapper, ExternalLink, StyledHeader, StyledText } from './_help-centre-style'
+import { deriv_app_url } from 'common/constants'
+import { Text } from 'components/elements'
 import { localize, Localize, WithIntl } from 'components/localization'
 
-const ArticleWrapper = styled.div`
-    max-width: 71.2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    height: 100%;
-    font-size: var(--text-size-s);
-    line-height: 1.5;
-    margin-left: 12.6rem;
-`
-const ExternalLink = styled.a`
-    text-decoration: none;
-    font-size: var(--text-size-s);
-    font-weight: bold;
-    color: var(--color-red);
-
-    :hover {
-        text-decoration: underline;
-    }
-`
-const StyledText = styled(Text)`
-    margin-top: 1.7rem;
+const StyledList = styled.ul`
+    list-style: unset;
+    padding-left: 2rem;
 `
 const StyledListItem = styled.li`
-    text-indent: -1.4em;
-    padding-left: 1.4em;
+    color: var(--color-black-3);
+    margin-top: 1.6rem;
 `
-const urlResetPassword =
-    getLanguage() === 'en' || getLanguage() == null
-        ? '/reset-password/'
-        : `/${getLanguage()}/reset-password/`
 
 const WhoCanOpenAnAccount = () => (
     <ArticleWrapper>
-        <Header as="h4" margin=" 0 0 2.4rem 0" lh="1.5">
-            {localize("Why can't I create an account?")}
-        </Header>
+        <StyledHeader as="h4">{localize("Why can't I create an account?")}</StyledHeader>
         <Text>
             {localize(
-                'In line with our Group practice, we set the following criteria for client signups:',
+                'In line with our Group practice, we set the following criteria for client sign ups:',
             )}
         </Text>
-        <div>
+        <StyledList>
             <StyledListItem>
                 {localize('Clients have to be at least 18 years of age.')}
             </StyledListItem>
             <StyledListItem>
                 {localize(
-                    'Clients cannot be a resident in Canada, France, Hong Kong, Israel, Jersey, Malaysia, Malta, Paraguay, UAE, USA, or a restricted country which has been identified by the Financial Action Task Force (FATF) as having strategic deficiencies.',
+                    'Clients cannot be a resident in Canada, Hong Kong, Israel, Jersey, Malaysia, Malta, Paraguay, UAE, USA, or a restricted country which has been identified by the Financial Action Task Force (FATF) as having strategic deficiencies.',
                 )}
             </StyledListItem>
-        </div>
+        </StyledList>
     </ArticleWrapper>
 )
 const ChangingPersonalDetails = () => (
     <ArticleWrapper>
-        <Header as="h4" margin=" 0 0 2.4rem 0" lh="1.5">
-            {localize('How can I change my personal details?')}
-        </Header>
+        <StyledHeader as="h4">{localize('How can I change my personal details?')}</StyledHeader>
         <Text>
             <Localize
-                translate_text="If you have not made a deposit or created a Deriv MT5 (DMT5) account, you can change your name, date of birth, or citizenship by going to <0>Settings ></0> <1>Personal details</1>."
+                translate_text="If your account is not authenticated, you can change your name, date of birth, or citizenship by going to <0>Settings ></0> <1>Personal details</1>."
                 components={[
                     <strong key={0} />,
                     <ExternalLink
-                        href={`${deriv_app_url}/account/personal-details`}
+                        to={`${deriv_app_url}/account/personal-details`}
+                        external="true"
+                        weight="bold"
                         target="_blank"
                         rel="noopener noreferrer"
                         key={1}
@@ -81,16 +56,14 @@ const ChangingPersonalDetails = () => (
         </Text>
         <StyledText>
             {localize(
-                'If you have made a deposit or created a DMT5 account, you can submit a ticket requesting the desired changes. Please attach your proofs of identity and address.',
+                'If the account has been fully authenticated, you can submit a ticket requesting the desired changes. Please attach your proof of identity and address.',
             )}
         </StyledText>
     </ArticleWrapper>
 )
 const ChangeAccountCurrency = () => (
     <ArticleWrapper>
-        <Header as="h4" margin=" 0 0 2.4rem 0" lh="1.5">
-            {localize("How can I change my account's currency?")}
-        </Header>
+        <StyledHeader as="h4">{localize("How can I change my account's currency?")}</StyledHeader>
         <Text>
             {localize(
                 'Once you have made a deposit or created a DMT5 account, you can only change your currency by contacting Customer Support.',
@@ -100,17 +73,19 @@ const ChangeAccountCurrency = () => (
 )
 const RecoveringPassword = () => (
     <ArticleWrapper>
-        <Header as="h4" margin=" 0 0 2.4rem 0" lh="1.5">
+        <StyledHeader as="h4">
             {localize(
                 'I forgot my Google/Facebook account password. How can I log in to my Deriv account?',
             )}
-        </Header>
+        </StyledHeader>
         <Text>
             <Localize
                 translate_text="If you’ve forgotten your Google/Facebook account password, you can <0>reset your Deriv account password</0> to log in to Deriv."
                 components={[
                     <ExternalLink
-                        href={urlResetPassword}
+                        to="/reset-password"
+                        external="true"
+                        weight="bold"
                         target="_blank"
                         rel="noopener noreferrer"
                         key={0}
@@ -122,9 +97,7 @@ const RecoveringPassword = () => (
 )
 const CloseAccount = () => (
     <ArticleWrapper>
-        <Header as="h4" margin=" 0 0 2.4rem 0" lh="1.5">
-            {localize('How can I close my account?')}
-        </Header>
+        <StyledHeader as="h4">{localize('How can I close my account?')}</StyledHeader>
         <Text>
             {localize(
                 'Before closing your account, please close all your open positions and withdraw all the funds in your account. After that, you may contact us with your request.',
@@ -134,17 +107,19 @@ const CloseAccount = () => (
 )
 const UnsubscribeEmail = () => (
     <ArticleWrapper>
-        <Header as="h4" margin=" 0 0 2.4rem 0" lh="1.5">
+        <StyledHeader as="h4">
             {localize('How do I unsubscribe from marketing emails?')}
-        </Header>
+        </StyledHeader>
         <Text>
             <Localize
                 translate_text="You can do this easily by going to <0>Settings > Profile ></0> <1>Personal details</1>. Uncheck the email preference box, and click the ‘Submit’ button to unsubscribe."
                 components={[
                     <strong key={0} />,
                     <ExternalLink
-                        href={`${deriv_app_url}/account/personal-details`}
+                        to={`${deriv_app_url}/account/personal-details`}
                         target="_blank"
+                        external="true"
+                        weight="bold"
                         rel="noopener noreferrer"
                         key={1}
                     />,
@@ -155,12 +130,10 @@ const UnsubscribeEmail = () => (
 )
 const DormantFee = () => (
     <ArticleWrapper>
-        <Header as="h4" margin=" 0 0 2.4rem 0" lh="1.5">
-            {localize('What is a dormant fee?')}
-        </Header>
+        <StyledHeader as="h4">{localize('What is a dormant fee?')}</StyledHeader>
         <Text>
             {localize(
-                'A dormant fee is an amount charged to any account that has not placed a buy or sell transaction over a continuous period of 12 months.',
+                'A dormant fee is an amount charged to any account that has not placed a transaction over a continuous period of 12 months.',
             )}
         </Text>
         <StyledText>
@@ -173,32 +146,41 @@ const DormantFee = () => (
 
 const AccountArticle = () => {
     return (
-        <Article header="Account">
-            <WhoCanOpenAnAccount
-                text={localize("Why can't I create an account?")}
-                label="who-can-open-an-account"
-            />
-            <ChangingPersonalDetails
-                text={localize('Changing your personal details')}
-                label="changing-your-personal-details"
-            />
-            <ChangeAccountCurrency
-                text={localize("How can I change my account's currency?")}
-                label="change-account-currency"
-            />
-            <RecoveringPassword
-                text={localize(
-                    'I forgot my Google/Facebook account password. How can I log in to my Deriv account?',
-                )}
-                label="recovering-your-password"
-            />
-            <CloseAccount text="How can I close my account?" label="close-your-account" />
-            <UnsubscribeEmail
-                text="How do I unsubscribe from marketing emails?"
-                label="unsubscribe-marketing-emails"
-            />
-            <DormantFee text="What is a dormant fee?" label="what-is-dormant-fee" />
-        </Article>
+        <div>
+            <Article
+                header={localize('Account')}
+                title={localize('Help centre | Frequently asked questions | Account | Deriv')}
+                description={localize('Frequently asked questions - Account')}
+            >
+                <WhoCanOpenAnAccount
+                    text={localize("Why can't I create an account?")}
+                    label="who-can-open-an-account"
+                />
+                <ChangingPersonalDetails
+                    text={localize('How can I change my personal details?')}
+                    label="changing-your-personal-details"
+                />
+                <ChangeAccountCurrency
+                    text={localize("How can I change my account's currency?")}
+                    label="change-account-currency"
+                />
+                <RecoveringPassword
+                    text={localize(
+                        'I forgot my Google/Facebook account password. How can I log in to my Deriv account?',
+                    )}
+                    label="recovering-your-password"
+                />
+                <CloseAccount
+                    text={localize('How can I close my account?')}
+                    label="close-your-account"
+                />
+                <UnsubscribeEmail
+                    text={localize('How do I unsubscribe from marketing emails?')}
+                    label="unsubscribe-marketing-emails"
+                />
+                <DormantFee text={localize('What is a dormant fee?')} label="what-is-dormant-fee" />
+            </Article>
+        </div>
     )
 }
 

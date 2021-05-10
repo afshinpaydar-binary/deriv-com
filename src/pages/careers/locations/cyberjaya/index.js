@@ -4,7 +4,7 @@ import { cyberjaya } from '../../_model/_locations/_locations'
 import { LocationLayout } from '../_location-layout'
 import { SEO } from 'components/containers'
 import Layout from 'components/layout/layout'
-import { WithIntl } from 'components/localization'
+import { localize, WithIntl } from 'components/localization'
 
 const query = graphql`
     query {
@@ -26,9 +26,6 @@ const query = graphql`
         cyberjaya_grid_4: file(relativePath: { eq: "careers/cyberjaya_grid_4.png" }) {
             ...fadeIn
         }
-        map_cyberjaya: file(relativePath: { eq: "careers/map_cyberjaya.png" }) {
-            ...fadeIn
-        }
     }
 `
 
@@ -36,8 +33,13 @@ const Cyberjaya = () => {
     const images = useStaticQuery(query)
 
     return (
-        <Layout type="careers" padding_top="10rem">
-            <SEO title={cyberjaya.display_name} />
+        <Layout type="careers">
+            <SEO
+                title={localize('Cyberjaya | Our office – Malaysia | Deriv')}
+                description={localize(
+                    'Find your role with us by browsing Deriv job opportunities in Cyberjaya, Malaysia.',
+                )}
+            />
             <LocationLayout location={cyberjaya} images={images} />
         </Layout>
     )

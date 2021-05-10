@@ -7,11 +7,10 @@ import { Header } from 'components/elements'
 import device from 'themes/device.js'
 
 const StyledHeader = styled(Header)`
-    margin-top: ${props => (props.as === 'h2' ? '0.8rem' : '0')};
-
     @media ${device.tabletL} {
         text-align: left;
-        ${props => (props.as === 'h4' ? 'font-size: 20px; font-wight: 500;' : 'font-size: 32px')}
+        ${(props) =>
+            props.as === 'h4' ? 'font-size: var(--text-size-sm);' : 'font-size: var(--text-size-l)'}
     }
 `
 
@@ -19,10 +18,10 @@ const DHowItWorks = ({ Video, title }) => {
     return (
         <SectionContainer>
             <Container justify="center" direction="column">
-                <StyledHeader as="h4" align="center" weight="500">
+                <StyledHeader as="h4" type="sub-section-title" align="center" weight="500">
                     {localize('How it works')}
                 </StyledHeader>
-                <StyledHeader as="h2" align="center" font_size="var(--text-size-header-1)">
+                <StyledHeader as="h2" type="page-title" align="center" mt="0.9rem">
                     {title}
                 </StyledHeader>
                 <Video />
@@ -32,7 +31,7 @@ const DHowItWorks = ({ Video, title }) => {
 }
 
 DHowItWorks.propTypes = {
-    title: PropTypes.string,
+    title: PropTypes.object,
     Video: PropTypes.func,
 }
 export default DHowItWorks

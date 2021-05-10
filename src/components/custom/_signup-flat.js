@@ -4,17 +4,19 @@ import PropTypes from 'prop-types'
 import { Input, Button } from 'components/form'
 import { Header, Text } from 'components/elements'
 import { localize } from 'components/localization'
+import { Container } from 'components/containers'
 import device from 'themes/device.js'
+import { deriv_app_url } from 'common/constants'
+// SVG
 import Facebook from 'images/svg/facebook-blue.svg'
 import Google from 'images/svg/google.svg'
-import { deriv_app_url } from 'common/utility'
 
 const Wrapper = styled.div`
     padding: 3.3rem 8.5rem;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    background-color: ${props => (props.dark ? 'var(--color-black)' : 'var(--color-white)')};
+    background-color: ${(props) => (props.dark ? 'var(--color-black)' : 'var(--color-white)')};
     height: 26.9rem;
     width: 100%;
 
@@ -27,14 +29,6 @@ const FormWrapper = styled(Wrapper)`
     padding: 0;
     height: 100%;
     width: 70%;
-`
-const CenterWrapper = styled.div`
-    width: 70%;
-    height: 100%;
-
-    @media ${device.tabletL} {
-        width: 100%;
-    }
 `
 const RightWrapper = styled.div`
     display: flex;
@@ -80,7 +74,7 @@ const SocialWrapper = styled.div`
     align-items: center;
 `
 const SocialButton = styled(Button)`
-    background-color: ${props => (props.dark ? 'var(--color-black)' : 'var(--color-white)')};
+    background-color: ${(props) => (props.dark ? 'var(--color-black)' : 'var(--color-white)')};
     border: none;
 `
 
@@ -97,7 +91,7 @@ const DemoButton = styled(Button)`
     width: auto;
 `
 const Splitter = styled.div`
-    background-color: ${props => (props.dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)')};
+    background-color: ${(props) => (props.dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)')};
     height: 20rem;
     width: 0.2rem;
     margin-top: 1rem;
@@ -124,8 +118,13 @@ const SignupFlat = ({
     return (
         <Wrapper dark={dark}>
             <FormWrapper>
-                <CenterWrapper>
-                    <StyledHeader as="h3" weight="bold" color={dark ? 'white' : 'black'}>
+                <Container>
+                    <StyledHeader
+                        as="h3"
+                        type="section-title"
+                        weight="bold"
+                        color={dark ? 'white' : 'black'}
+                    >
                         {localize('Join over 1 million traders worldwide')}
                     </StyledHeader>
                     <br />
@@ -152,45 +151,52 @@ const SignupFlat = ({
                                 required
                             />
                         </InputWrapper>
-                        <EmailButton type="submit" secondary="true" disabled={is_submitting}>
+                        <EmailButton
+                            id="gtm-signup-email"
+                            type="submit"
+                            secondary="true"
+                            disabled={is_submitting}
+                        >
                             {localize('Sign up')}
                         </EmailButton>
                     </InputGroup>
                     <SocialWrapper>
                         <StyledText color={dark ? 'white' : 'black'}>
-                            {localize('or sign in with')}
+                            {localize('or sign up with')}
                         </StyledText>
                         <SocialButton
                             dark={dark}
                             onClick={handleSocialSignup}
                             provider="google"
-                            id="google"
+                            data-provider="google"
+                            id="gtm-signup-google"
                             type="button"
                             social
                         >
                             <span>
-                                <Google />
+                                <img src={Google} alt="google" width="22" height="23" />
                             </span>
                         </SocialButton>
                         <SocialButton
                             dark={dark}
                             onClick={handleSocialSignup}
                             provider="facebook"
-                            id="facebook"
+                            data-provider="facebook"
+                            id="gtm-signup-facebook"
                             type="button"
                             social
                         >
                             <span>
-                                <Facebook />
+                                <img src={Facebook} alt="facebook" width="12" height="22" />
                             </span>
                         </SocialButton>
                     </SocialWrapper>
-                </CenterWrapper>
+                </Container>
                 <Splitter dark={dark}></Splitter>
                 <RightWrapper>
                     <Text
                         align="center"
-                        secondary="true"
+                        size="var(--text-size-sm)"
                         color={dark ? 'white' : 'black'}
                         weight="bold"
                     >

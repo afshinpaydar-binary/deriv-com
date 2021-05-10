@@ -7,6 +7,7 @@ const GlobalStyle = createGlobalStyle`
     ${Reset}
     ${Variables}
 
+    i { font-style: italic }
     * {
         font-family: 'IBM Plex Sans', sans-serif;
 
@@ -33,11 +34,6 @@ const GlobalStyle = createGlobalStyle`
         margin: 0;
         padding: 0;
         background: var(--color-black);
-    }
-    .force-opacity {
-        img {
-            opacity: 1 !important;
-        }
     }
 `
 

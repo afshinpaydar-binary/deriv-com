@@ -7,41 +7,34 @@ import { Container, SEO } from 'components/containers'
 import { Header, Text } from 'components/elements'
 import { Input, Button } from 'components/form'
 import validation from 'common/validation'
+import { trimSpaces } from 'common/utility'
 import { BinarySocketBase } from 'common/websocket/socket_base'
 import Login from 'common/login'
 
 const StyledContainer = styled(Container)`
     text-align: center;
-    margin-top: 8rem;
-    height: 72rem;
-    padding-bottom: 33rem;
+    height: 100vh;
+    padding: auto 0;
+    justify-content: start;
 `
 
 const ButtonContainer = styled.div`
     margin-top: 2rem;
 `
 
-const SecondaryHeader = styled(Header)`
-    margin-top: 0.5rem;
-    margin-bottom: 3.8rem;
-`
-
 const InputGroup = styled.div`
-    margin-bottom: 3.4rem;
+    width: 40rem;
+    margin: 0 auto 3.4rem;
 `
 
 const StyledButton = styled(Button)`
-    margin: 0 0.4rem;
+    margin: 0.8rem 0.4rem;
 `
 
-const StyledForm = styled(Form)`
-    width: 40rem;
-`
-
-const resetValidation = values => {
+const resetValidation = (values) => {
     let errors = {}
 
-    const email_error = validation.email(values.email)
+    const email_error = validation.email(trimSpaces(values.email))
 
     if (email_error) {
         errors.email = email_error
@@ -51,10 +44,15 @@ const resetValidation = values => {
 }
 
 const resetSubmission = (values, actions) => {
-    BinarySocketBase.send({
-        verify_email: values.email,
-        type: 'reset_password',
-    }).then(response => {
+    const binary_socket = BinarySocketBase.init()
+
+    binary_socket.onopen = () => {
+        binary_socket.send(
+            JSON.stringify({ verify_email: trimSpaces(values.email), type: 'reset_password' }),
+        )
+    }
+    binary_socket.onmessage = (msg) => {
+        const response = JSON.parse(msg.data)
         actions.setSubmitting(false)
         if (response.error) {
             actions.setStatus({
@@ -69,19 +67,33 @@ const resetSubmission = (values, actions) => {
                 'Please check your email and click on the link provided to reset your password.',
             ),
         })
-    })
+        binary_socket.close()
+    }
 }
 
 const ResetPassword = () => (
-    <Layout type="static">
-        <SEO title={localize('Reset password')} description={localize('Reset password')} no_index />
+    <Layout type="static" margin_top={'0'}>
+        <SEO
+            title={localize('Reset password | Deriv')}
+            description={localize(
+                'Forgot your Deriv password? Want to reset your password? Send us your email address and we’ll email you the instructions.',
+            )}
+            no_index
+        />
         <StyledContainer justify="center" align="center" direction="column">
-            <Header as="h2" align="center">
+            <Header as="h2" type="page-title" align="center" mt="80px">
                 {localize('Reset password')}
             </Header>
-            <SecondaryHeader as="h4" align="center" weight="500">
+            <Header
+                as="h4"
+                type="sub-section-title"
+                align="center"
+                weight="500"
+                mt="0.5rem"
+                mb="3.8rem"
+            >
                 {localize("We'll email you instructions to reset your password.")}
-            </SecondaryHeader>
+            </Header>
             <Formik
                 initialValues={{ email: '' }}
                 initialStatus={{}}
@@ -97,13 +109,13 @@ const ResetPassword = () => (
                     resetForm,
                     status,
                 }) => (
-                    <StyledForm noValidate>
+                    <Form noValidate>
                         <InputGroup>
                             <Input
                                 id="email"
                                 name="email"
                                 error={errors.email}
-                                value={values.email}
+                                value={trimSpaces(values.email)}
                                 handleError={resetForm}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -111,7 +123,7 @@ const ResetPassword = () => (
                                 type="text"
                                 label={localize('Email')}
                                 background="white"
-                                placeholder={'example@mail.com'}
+                                placeholder={'example@email.com'}
                                 data-lpignore="true"
                                 required
                             />
@@ -130,7 +142,7 @@ const ResetPassword = () => (
                                 {localize('Reset my password')}
                             </StyledButton>
                         </ButtonContainer>
-                    </StyledForm>
+                    </Form>
                 )}
             </Formik>
         </StyledContainer>

@@ -1,9 +1,8 @@
 import Cookies from 'js-cookie'
-import { isStorageSupported, LocalStore } from './storage'
-import TrafficSource from './traffic-source'
-import isMobile from './os-detect'
-import { brand_name } from './utility'
+import { isStorageSupported } from './storage'
+import { getDataObjFromCookies, getDataLink, getCookiesFields, getCookiesObject } from './cookies'
 import { getAppId } from './websocket/config'
+import { brand_name, deriv_app_id, oauth_url } from 'common/constants'
 
 const Login = (() => {
     const redirectToLogin = () => {
@@ -14,31 +13,25 @@ const Login = (() => {
 
     const loginUrl = () => {
         const server_url = localStorage.getItem('config.server_url')
-        const language = localStorage.getItem('i18n')
-        const signup_device = LocalStore.get('signup_device') || (isMobile() ? 'mobile' : 'desktop')
-        const date_first_contact = LocalStore.get('date_first_contact')
-        const marketing_queries = `&signup_device=${signup_device}${
-            date_first_contact ? `&date_first_contact=${date_first_contact}` : ''
-        }`
+        const language = localStorage.getItem('i18n')?.replace('-', '_')
+
+        const cookies = getCookiesFields()
+        const cookies_objects = getCookiesObject(cookies)
+        const cookies_value = getDataObjFromCookies(cookies_objects, cookies)
+        const cookies_link = getDataLink(cookies_value)
+
         const affiliate_tracking = Cookies.getJSON('affiliate_tracking')
-        const utm_data = TrafficSource.getData()
-        const utm_source = TrafficSource.getSource(utm_data)
-        const utm_source_link = utm_source ? `&utm_source=${utm_source}` : ''
-        const utm_medium_link = utm_data.utm_medium ? `&utm_medium=${utm_data.utm_medium}` : ''
-        const utm_campaign_link = utm_data.utm_campaign
-            ? `&utm_campaign=${utm_data.utm_campaign}`
-            : ''
+
         const affiliate_token_link = affiliate_tracking
             ? `&affiliate_token=${affiliate_tracking}`
             : ''
-        const deriv_app_app_id = 16929
 
         return server_url && /qa/.test(server_url)
-            ? `https://${server_url}/oauth2/authorize?app_id=${getAppId()}&l=${language}${marketing_queries}&brand=${brand_name.toLowerCase()}${affiliate_token_link}${utm_source_link}${utm_medium_link}${utm_campaign_link}`
-            : `https://oauth.deriv.app/oauth2/authorize?app_id=${deriv_app_app_id}&l=${language}${marketing_queries}&brand=${brand_name.toLowerCase()}${affiliate_token_link}${utm_source_link}${utm_medium_link}${utm_campaign_link}`
+            ? `https://${server_url}/oauth2/authorize?app_id=${getAppId()}&l=${language}&brand=${brand_name.toLowerCase()}${affiliate_token_link}${cookies_link}`
+            : `${oauth_url}/oauth2/authorize?app_id=${deriv_app_id}&l=${language}&brand=${brand_name.toLowerCase()}${affiliate_token_link}${cookies_link}`
     }
 
-    const initOneAll = provider => {
+    const initOneAll = (provider) => {
         const social_login_url = `${loginUrl()}&social_signup=${provider}`
         window.location.href = social_login_url
     }

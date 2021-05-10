@@ -1,17 +1,19 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Header, Text } from 'components/elements'
-import { localize } from 'components/localization'
+import PropTypes from 'prop-types'
+import { Header, Text, LocalizedLinkText } from 'components/elements'
+import { localize, Localize } from 'components/localization'
 import { Container, SectionContainer, Flex } from 'components/containers'
 import device from 'themes/device'
 // Icons
-import ForexIcon from 'images/svg/market-forex.svg'
-import IndicesIcon from 'images/svg/market-indices.svg'
-import CommoditiesIcon from 'images/svg/market-commodities.svg'
-import SyntheticIndicesIcon from 'images/svg/market-synthetic-indices.svg'
+import CommoditiesIcon from 'images/svg/markets/commodities.svg'
+import ForexIcon from 'images/svg/markets/forex.svg'
+import StockIcon from 'images/svg/markets/stock.svg'
+import SyntheticIndicesIcon from 'images/svg/markets/synthetic.svg'
 // Images
 const StyledSection = styled(SectionContainer)`
-    background-color: rgba(242, 243, 244, 0.3);
+    box-shadow: inset 0 1px 0 0 var(--color-grey-8);
+    padding: 8rem 0 6rem;
 
     @media ${device.tabletL} {
         padding: 5rem 0;
@@ -28,14 +30,17 @@ const MarketWrapper = styled(Flex)`
 `
 const MarketCard = styled.article`
     display: flex;
-    margin-bottom: ${props => props.mb || ''};
-    margin-right: ${props => props.mr || ''};
+    margin-bottom: ${(props) => props.mb || ''};
+    margin-right: ${(props) => props.mr || ''};
 
     svg {
         margin-right: 2rem;
     }
+    img {
+        margin-right: 2rem;
+    }
     div {
-        max-width: 38.4rem;
+        max-width: 40rem;
 
         ${Text} {
             padding-top: 8px;
@@ -52,65 +57,130 @@ const MarketCard = styled.article`
             height: 6rem;
             margin-bottom: 1rem;
         }
+        img {
+            width: 6rem;
+            height: 6rem;
+            margin-bottom: 1rem;
+        }
     }
     @media (max-width: 860px) {
         margin-bottom: 4rem;
     }
 `
-const Markets = () => (
+
+const MarketLink = styled(LocalizedLinkText) `
+    display: block;
+    margin-top: 0.8rem;
+`
+
+const Markets = ({ is_ppc }) => (
     <StyledSection>
         <Container direction="column">
-            <Header align="center" font_size="var(--text-size-header-1)" as="h2">
+            <Header align="center" as="h3" type="section-title">
                 {localize('Markets')}
             </Header>
             <MarketWrapper wrap="wrap">
                 <MarketCard mr="2.4rem" mb="4rem">
-                    <ForexIcon />
+                    <img src={ForexIcon} alt="forex" width="64" height="64" />
                     <div>
-                        <Header as="h4">{localize('Forex')}</Header>
+                        <Header as="h4" type="sub-section-title">
+                            {localize('Forex')}
+                        </Header>
                         <Text>
                             {localize(
                                 'Take part in the world’s largest financial market where more than $5 trillion worth of currencies are bought and sold each day.',
                             )}
                         </Text>
+                        <Localize
+                            translate_text="<0>Learn more</0>"
+                            components={[
+                                <MarketLink
+                                    key={0}
+                                    to="/markets#forex"
+                                    color="red"
+                                />,
+                            ]}
+                        />
                     </div>
                 </MarketCard>
                 <MarketCard mb="4rem">
-                    <IndicesIcon />
+                    <img src={StockIcon} alt="stock" width="64" height="64" />
                     <div>
-                        <Header as="h4">{localize('Stock indices')}</Header>
+                        <Header as="h4" type="sub-section-title">
+                            {localize('Stocks & indices')}
+                        </Header>
                         <Text>
                             {localize(
-                                'Predict broader market trends and diversify your risk with indices that measure the overall performance of a market.',
+                                'Predict market trends and diversify your risk by trading the world’s top performing stocks & indices.',
                             )}
                         </Text>
+                        <Localize
+                            translate_text="<0>Learn more</0>"
+                            components={[
+                                <MarketLink
+                                    key={0}
+                                    to="/markets#stock"
+                                    color="red"
+                                />,
+                            ]}
+                        />
                     </div>
                 </MarketCard>
-                <MarketCard mr="2.4rem">
-                    <CommoditiesIcon />
-                    <div>
-                        <Header as="h4">{localize('Commodities')}</Header>
-                        <Text>
-                            {localize(
-                                'Trade natural resources that are central to the world’s economy and profit from the opportunities created by volatile markets.',
-                            )}
-                        </Text>
-                    </div>
-                </MarketCard>
+                {!is_ppc && (
+                    <MarketCard mr="2.4rem">
+                        <img src={SyntheticIndicesIcon} alt="synthetic" width="64" height="64" />
+                        <div>
+                            <Header as="h4" type="sub-section-title">
+                                {localize('Synthetic indices')}
+                            </Header>
+                            <Text>
+                                {localize(
+                                    'Enjoy synthetic markets that emulate the excitement of real-world markets without unpredictable real-world disruptions.',
+                                )}
+                            </Text>
+                            <Localize
+                            translate_text="<0>Learn more</0>"
+                            components={[
+                                <MarketLink
+                                    key={0}
+                                    to="/markets#synthetic"
+                                    color="red"
+                                />,
+                            ]}
+                        />
+                        </div>
+                    </MarketCard>
+                )}
                 <MarketCard>
-                    <SyntheticIndicesIcon />
+                    <img src={CommoditiesIcon} alt="commodities" width="64" height="64" />
                     <div>
-                        <Header as="h4">{localize('Synthetic indices')}</Header>
+                        <Header as="h4" type="sub-section-title">
+                            {localize('Commodities')}
+                        </Header>
                         <Text>
                             {localize(
-                                'Enjoy synthetic markets that emulate the excitement of real-world markets without unpredictable real-world disruptions.',
+                                'Trade natural resources that are central to the world’s economy and profit from the opportunities created by the markets.',
                             )}
                         </Text>
+                        <Localize
+                            translate_text="<0>Learn more</0>"
+                            components={[
+                                <MarketLink
+                                    key={0}
+                                    to="/markets#commodities"
+                                    color="red"
+                                />,
+                            ]}
+                        />
                     </div>
                 </MarketCard>
             </MarketWrapper>
         </Container>
     </StyledSection>
 )
+
+Markets.propTypes = {
+    is_ppc: PropTypes.bool,
+}
 
 export default Markets

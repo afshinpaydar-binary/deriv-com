@@ -1,47 +1,74 @@
 import React from 'react'
 import styled from 'styled-components'
-import { StyledLink, Text } from 'components/elements'
-import { LinkButton } from 'components/form'
+import { Text } from 'components/elements'
+import { Button } from 'components/form'
 import { localize } from 'components/localization'
 import { Container } from 'components/containers'
-import ContactUsIcon from 'images/svg/contact-us.svg'
+import { useLivechat } from 'components/hooks/use-livechat'
 import device from 'themes/device'
+import ContactUsIcon from 'images/svg/livechat-red.svg'
 
 const DFYAWrapper = styled.section`
     background-color: var(--color-black-3);
 `
 const DFYASection = styled(Container)`
     padding: 3.5rem 0;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
+    @media ${device.mobileL} {
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+
+        ${Button} {
+            font-size: 14px;
+            padding: 10px 16px;
+        }
+    }
 
     & > * {
         width: auto;
     }
-
+`
+const StyledIcon = styled.img`
     @media ${device.tabletL} {
-        ${StyledLink} {
-            font-size: var(--text-size-l);
-        }
+        width: 48px;
+        height: 48px;
+        margin-right: 1.6rem;
     }
 `
-const StyledIcon = styled(ContactUsIcon)`
-    @media ${device.tabletL} {
-        width: 30px;
-        height: 30px;
+const MiddleText = styled(Text)`
+    @media ${device.mobileL} {
+        margin: 1.6rem 0;
+        text-align: center;
+        font-weight: bold;
     }
 `
 
-export const DidntFindYourAnswerBanner = () => (
-    <DFYAWrapper>
-        <DFYASection>
-            <StyledIcon />
-            <Text size="var(--text-size-l)" color="white" weight="bold" margin="0 2.4rem">
-                {localize('Didn’t find your answer?')}
-            </Text>
-            <LinkButton secondary="true" to="/contact-us" weight="bold" color="black">
-                {localize('Contact us')}
-            </LinkButton>
-        </DFYASection>
-    </DFYAWrapper>
-)
+export const DidntFindYourAnswerBanner = () => {
+    const [is_livechat_interactive, LC_API] = useLivechat()
+    return (
+        <DFYAWrapper>
+            <DFYASection>
+                <StyledIcon src={ContactUsIcon} alt="contact us icon" />
+                <MiddleText size="var(--text-size-l)" color="white" m="0 2.4rem">
+                    {localize('Didn’t find your answer? We can help.')}
+                </MiddleText>
+                {is_livechat_interactive && (
+                    <Button
+                        secondary="true"
+                        onClick={() => {
+                            LC_API.open_chat_window()
+                        }}
+                        weight="bold"
+                        color="black"
+                    >
+                        {localize('Chat')}
+                    </Button>
+                )}
+            </DFYASection>
+        </DFYAWrapper>
+    )
+}
+
+export default DidntFindYourAnswerBanner

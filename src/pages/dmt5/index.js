@@ -1,84 +1,103 @@
-import React from 'react'
-import styled from 'styled-components'
-import DMT5Video from './_dmt5-video.js'
-import DHowItWorks from 'components/custom/_dhow-it-works.js'
-import DTrading from 'components/custom/_dtrading.js'
-import DHero from 'components/custom/_dhero.js'
-import DNumber from 'components/custom/_dnumbers.js'
+import React, { useState, useEffect } from 'react'
+import { graphql, StaticQuery } from 'gatsby'
+import {
+    WhyTrader,
+    StartTrader,
+    DownloadApp,
+    Flexibility,
+    DBanner,
+    MarginCalculator,
+} from './_lazy-load'
+import DHero from './_dhero'
+import Numbers from './_numbers'
+import WhatIsTrader from './_what-is-trader'
+import BackgroundPatternDMT5 from 'images/svg/bg_banner_dmt5.svg'
+import BackgroundPatternDMT5_mobile from 'images/svg/bg_banner_dmt5_mobile.svg'
 import Layout from 'components/layout/layout'
 import dmt5_logo from 'images/svg/dmt5-icon.svg'
-import { OtherPlatform } from 'components/custom/other-platforms.js'
-import { SEO, Show } from 'components/containers'
+import { SEO } from 'components/containers'
 import { localize, WithIntl, Localize } from 'components/localization'
 import DMT5BG from 'images/svg/dmt5-bg.svg'
-import Signup, { Appearances } from 'components/custom/signup'
+import DMT5BG2 from 'images/svg/dmt5-bg2.svg'
+import { size } from 'themes/device'
+import { isBrowser } from 'common/utility'
 
-const items = [
-    { title: '70+', subtitle: localize('tradable assets and growing') },
-    { title: '1:1,000', subtitle: localize('maximum leverage') },
-    { title: '30', subtitle: localize('maximum lot size') },
-]
-const PlatformContainer = styled.div`
-    padding: 8rem 0;
+const query = graphql`
+    query {
+        deriv_platform: file(relativePath: { eq: "dmt5-banner.png" }) {
+            ...fadeIn
+        }
+    }
 `
-const trading = [
+
+const numbers_content = [
     {
-        title: localize('DMT5 Standard account'),
-        subtitle: localize(
-            'The Standard account offers new and experienced traders high leverage and variable spreads for maximum flexibility. Trade commodities, cryptocurrencies, major (standard and micro-lots), and minor currency pairs with high leverage.',
-        ),
-        second_title: localize('DMT5 Advanced account'),
-        second_subtitle: localize(
-            'The Advanced account is a 100% A Book account where your trades are passed straight through to the market, giving you direct access to forex liquidity providers. Trade major, minor, and exotic currency pairs with tight spreads and higher trade volumes.',
-        ),
-        image_name: 'dmt-5-ipad-iphone.png',
-        image_alt: localize('DMT5 mac'),
+        title: <Localize translate_text="330K+" />,
+        subtitle: <Localize translate_text="clients on DMT5" />,
     },
     {
-        title: localize('DMT5 Synthetic Indices account'),
-        subtitle: localize(
-            'The Synthetic Indices account allows you to trade contracts for difference (CFDs) on synthetic indices that mimic real-world movements. Available for trading 24/7 and audited for fairness by an independent third party.',
-        ),
-        second_title: localize('Practice with Demo accounts'),
-        second_subtitle: localize(
-            'Create demo accounts (DMT5 Standard, DMT5 Advanced, or DMT5 Synthetic Indices) — the best way for you to check out the platform, get familiar with the tools, and learn trading techniques.',
-        ),
-        image_name: 'dmt-5-mac.png',
-        image_alt: localize('DMT5 ipad iphone'),
+        title: <Localize translate_text="100+" />,
+        subtitle: <Localize translate_text="tradable assets" />,
+    },
+    {
+        title: <Localize translate_text="24/7" />,
+        subtitle: <Localize translate_text="trading" />,
     },
 ]
 
 const DMT5 = () => {
+    const [is_mobile, setMobile] = useState(false)
+    const handleResizeWindow = () => {
+        setMobile(isBrowser() ? window.screen.width <= size.mobileL : false)
+    }
+
+    useEffect(() => {
+        setMobile(isBrowser() ? window.screen.width <= size.mobileL : false)
+        window.addEventListener('resize', handleResizeWindow)
+    })
+
     return (
         <Layout>
             <SEO
+                title={localize('DMT5 | MetaTrader 5 | Deriv')}
                 description={localize(
                     'DMT5 is developed to give you the best CFD trading experience. You can access our MT5 trader through desktop and even mobile.',
                 )}
-                title={localize('DMT5 | MetaTrader 5')}
             />
             <DHero
-                title={localize('DMT5')}
-                content={
-                    <Localize
-                        translate_text="The all-in-one FX<0/>and CFD trading<0/>platform"
-                        components={[<br key={0} />]}
-                    />
-                }
+                title={localize('Deriv MetaTrader 5 (DMT5)')}
+                content={<Localize translate_text="The all-in-one CFD trading platform" />}
                 join_us_for_free
                 Logo={dmt5_logo}
-                background_image_name="dmt5-platform.png"
+                image_name="dmt5"
+                is_mobile={is_mobile}
                 background_svg={DMT5BG}
+                background_svg2={DMT5BG2}
+                background_alt={localize('DMT5')}
             />
-            <Show.Desktop>
-                <DNumber items={items} justify="space-around" />
-            </Show.Desktop>
-            <DHowItWorks Video={DMT5Video} title="Get started with DMT5 in 3 easy steps" />
-            <DTrading trading={trading} reverse two_title />
-            <PlatformContainer>
-                <OtherPlatform exclude="dmt5" />
-            </PlatformContainer>
-            <Signup appearance={Appearances.public} />
+            <Numbers numbers_content={numbers_content} />
+            <WhatIsTrader />
+            <WhyTrader />
+            <StartTrader />
+            <DownloadApp />
+            {/* TODO: add this section when trade tools are ready */}
+            {/* <TradeControl /> */}
+            <MarginCalculator />
+            <Flexibility />
+            {/* TODO: add/revise this section when swap free trading design is ready */}
+            {/* <SwapFreeTrading /> */}
+            <StaticQuery
+                query={query}
+                render={(data) => (
+                    <DBanner
+                        background_pattern={
+                            is_mobile ? BackgroundPatternDMT5_mobile : BackgroundPatternDMT5
+                        }
+                        title={<Localize translate_text="Get into the DMT5 experience" />}
+                        data={data}
+                    />
+                )}
+            />
         </Layout>
     )
 }

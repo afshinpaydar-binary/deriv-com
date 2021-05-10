@@ -7,7 +7,7 @@ module.exports = {
         description:
             'Deriv.com gives everyone an easy way to participate in the financial markets. Trade with as little as $1 USD on major currencies, stocks, indices, and commodities.',
         author: 'Deriv.com',
-        siteUrl: 'https://www.deriv.com',
+        siteUrl: 'https://deriv.com',
     },
     plugins: [
         'gatsby-plugin-react-helmet',
@@ -21,7 +21,6 @@ module.exports = {
         },
         'gatsby-transformer-sharp',
         'gatsby-plugin-sharp',
-        `gatsby-plugin-force-trailing-slashes`,
         {
             resolve: 'gatsby-plugin-sitemap',
             options: {
@@ -33,31 +32,77 @@ module.exports = {
                     '/**/check-email',
                     '/reset-password',
                     '/**/reset-password',
+                    '/ach',
+                    '/ach/**',
+                    '/amp',
+                    '/amp/**',
+                    '/**/amp',
+                    '/**/amp/**',
+                    '/interim',
+                    '/interim/**',
+                    '/**/interim',
+                    '/**/interim/**',
+                    '/homepage',
+                    '/homepage/**',
+                    '/**/homepage',
+                    '/**/homepage/**',
+                    '/offline-plugin-app-shell-fallback',
+                    '/**/offline-plugin-app-shell-fallback',
+                    '/landing',
+                    '/landing/**',
+                    '/**/landing',
+                    '/**/landing/**',
                 ],
                 serialize: ({ site, allSitePage }) =>
-                    allSitePage.edges.map(edge => {
+                    allSitePage.edges.map((edge) => {
                         const path = edge.node.path
                         let priority = 0.7
+                        const languages = Object.keys(language_config)
                         if (path === '/') {
                             priority = 1.0
                         } else if (path.match(/dbot|dtrader|dmt5|about/)) {
                             priority = 1.0
                         } else {
-                            Object.keys(language_config).forEach(lang => {
+                            languages.forEach((lang) => {
                                 if (path === `/${lang}/`) {
                                     priority = 1.0
                                 }
                             })
                         }
+
+                        const path_array = path.split('/')
+                        const current_lang = path_array[1]
+                        const check_lang = current_lang.replace('-', '_')
+                        let current_page = path
+
+                        if (languages.includes(check_lang)) {
+                            path_array.splice(1, 1)
+                            current_page = path_array.join('/')
+                        }
+
+                        languages.push('x-default')
+                        languages.splice(languages.indexOf('ach'), 1)
+                        const links = languages.map((locale) => {
+                            if (locale !== 'ach' && locale) {
+                                const replaced_locale = locale.replace('_', '-')
+
+                                const is_default = locale === 'en' || locale === 'x-default'
+                                const href_locale = is_default ? '' : `/${replaced_locale}`
+                                const href = `${site.siteMetadata.siteUrl}${href_locale}${current_page}`
+
+                                return { lang: replaced_locale, url: href }
+                            }
+                        })
+
                         return {
                             url: site.siteMetadata.siteUrl + edge.node.path,
                             changefreq: `monthly`,
                             priority,
+                            links,
                         }
                     }),
             },
         },
-        'gatsby-plugin-remove-serviceworker',
         {
             resolve: 'gatsby-plugin-manifest',
             options: {
@@ -70,6 +115,21 @@ module.exports = {
                 theme_color: '#ff444f',
                 display: 'standalone',
                 icon: './favicons/favicon-512x512.png',
+                icons: [
+                    {
+                        src: `./favicons/favicon-192x192.png`,
+                        sizes: `192x192`,
+                        type: `image/png`,
+                        purpose: 'any maskable',
+                    },
+                    {
+                        src: `./favicons/favicon-512x512.png`,
+                        sizes: `512x512`,
+                        type: `image/png`,
+                    },
+                ],
+                gcm_sender_id: '370236002280',
+                gcm_user_visible_only: true,
                 // TODO: add translations and support for language routes e.g:
                 // localize: [
                 //     {
@@ -83,7 +143,7 @@ module.exports = {
             },
         },
         {
-            resolve: 'gatsby-plugin-react-svg',
+            resolve: 'gatsby-plugin-svgr',
             options: {
                 rule: {
                     include: /svg/, // See below to configure properly
@@ -93,14 +153,10 @@ module.exports = {
         {
             resolve: 'gatsby-plugin-eslint',
             options: {
-                test: /\.js$|\.jsx$/,
-                exclude: /(node_modules|.cache|public)/,
                 stages: ['develop'],
-                options: {
-                    emitWarning: true,
-                    failOnError: false,
-                },
-            },
+                extensions: ['js'],
+                exclude: ['node_modules', '.cache', 'public'],
+              },
         },
         {
             resolve: 'gatsby-plugin-stylelint',
@@ -111,16 +167,51 @@ module.exports = {
             },
         },
         {
+            resolve: 'gatsby-plugin-robots-txt',
+            options: {
+                policy: [
+                    {
+                        userAgent: '*',
+                        allow: '/',
+                        disallow: [
+                            '/404/',
+                            '/homepage/',
+                            '/landing/',
+                        ],
+                    },
+                ],
+            },
+        },
+        'gatsby-plugin-anchor-links',
+        {
+            resolve: `gatsby-plugin-nprogress`,
+            options: {
+                color: `#85ACB0`,
+                showSpinner: false,
+                minimum: 0.4,
+            },
+        },
+        {
             resolve: 'gatsby-plugin-google-tagmanager',
             options: {
                 id: 'GTM-NF7884S',
                 includeInDevelopment: false,
             },
         },
+        'gatsby-plugin-remove-serviceworker',
         {
-            resolve: 'gatsby-plugin-robots-txt',
+            resolve: 'gatsby-plugin-anchor-links',
             options: {
-                policy: [{ userAgent: '*', allow: '/' }],
+                offset: -100,
+            },
+        },
+        {
+            resolve: 'gatsby-plugin-webpack-bundle-analyser-v2',
+            options: {
+                production: true,
+                disable: !process.env.ANALYZE_BUNDLE_SIZE,
+                generateStatsFile: true,
+                analyzerMode: 'static',
             },
         },
     ],

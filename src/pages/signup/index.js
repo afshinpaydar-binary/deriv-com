@@ -12,18 +12,26 @@ import Graph from 'images/svg/graph.svg'
 const Wrapper = styled.section`
     padding: 8rem 0;
     width: 100%;
-    height: calc(100vh - 10.4rem);
+    height: 80vh;
     justify-content: center;
     display: flex;
     flex-direction: row;
     background-color: rgba(200, 214, 215, 0.22);
+
+    @media ${device.tabletL} {
+        height: 120vh;
+    }
+    @media ${device.mobileL} {
+        height: 100vh;
+        padding: 0;
+    }
 `
 const Content = styled.div`
-    width: 40.5rem;
+    width: 43.8rem;
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
-    margin-right: 5.6rem;
+    margin-right: 4.7rem;
     margin-top: 9.4rem;
 
     @media ${device.tablet} {
@@ -34,37 +42,47 @@ const Content = styled.div`
 const Line = styled.div`
     width: 100%;
     border-bottom: 1px solid var(--color-red);
-    margin-top: 2.4rem;
+    margin-top: 4rem;
 `
 
 const StyledDiv = styled.div`
     padding: 6rem 0;
     background-color: rgba(200, 214, 215, 0.22);
+
+    @media ${device.mobileL} {
+        padding: 0;
+    }
 `
 
-const StyledGraph = styled(Graph)`
+const StyledGraph = styled.img`
     overflow: initial;
+
+    @media ${device.laptop} {
+        width: auto;
+    }
 `
 
 const NewSignup = () => {
-    const [submitState, setSubmitState] = useState('')
+    const [submit_state, setSubmitState] = useState('')
+    const [email, setEmail] = useState('')
 
-    function getSubmitState(submitStatus) {
+    function updateSubmitState(submitStatus, email) {
         setSubmitState(submitStatus)
+        setEmail(email)
     }
     return (
-        <Layout type="static" padding_top="0">
+        <Layout type="static" margin_top={'0'}>
             <SEO
+                title={localize('Easy And Free Sign Up | Online Trading | Deriv.com')}
                 description={localize(
                     'Signup to Deriv.com and trade online with as little as $1 USD on major currencies, stocks, indices, and commodities.',
                 )}
-                title={localize('Easy And Free Sign Up | Online Trading')}
             />
             <Wrapper>
-                {!(submitState === 'success' || submitState === 'error') && (
+                {submit_state !== 'success' && (
                     <Content>
-                        <StyledGraph />
-                        <Header margin="2.4rem 0 0 0" font_size="3.6rem">
+                        <StyledGraph src={Graph} alt="graph" />
+                        <Header mt="2.4rem" as="h3" type="section-title">
                             {localize('Start trading with Deriv')}
                         </Header>
                         <br />
@@ -80,7 +98,9 @@ const NewSignup = () => {
                 <Signup
                     appearance={Appearances.newSignup}
                     bgColor="grey-14"
-                    onSubmit={getSubmitState}
+                    onSubmit={updateSubmitState}
+                    submit_state={submit_state}
+                    email={email}
                     autofocus={true}
                 />
             </Wrapper>
@@ -91,7 +111,6 @@ const NewSignup = () => {
 
 NewSignup.propTypes = {
     autofocus: PropTypes.bool,
-    closeModal: PropTypes.func,
 }
 
 export default WithIntl()(NewSignup)

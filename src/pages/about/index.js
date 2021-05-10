@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import styled, { css } from 'styled-components'
-import { navigate } from '@reach/router'
+import { graphql, useStaticQuery } from 'gatsby'
+import Loadable from '@loadable/component'
 import { OurStory } from './_our-story'
-import Leaders from './_leaders'
-import { getLocationHash } from 'common/utility'
+import { Container, Box, Flex, SEO, Show } from 'components/containers'
+import { getWindowWidth, isBrowser } from 'common/utility'
+import { useTabState } from 'components/hooks/use-tab-state'
 import Layout from 'components/layout/layout'
 import { localize, Localize, WithIntl } from 'components/localization'
-import { Container, Wrapper, Flex, SEO } from 'components/containers'
-import { Header, Text, Image } from 'components/elements'
-import device from 'themes/device'
+import { Header, Text, QueryImage } from 'components/elements'
+import device, { size } from 'themes/device'
 
+const Leaders = Loadable(() => import('./_leaders'))
+
+const query = graphql`
+    query {
+        jean_yves_mobile: file(relativePath: { eq: "leaders/jean-yves-mobile.png" }) {
+            ...fadeIn
+        }
+        jean_yves: file(relativePath: { eq: "leaders/jean-yves.png" }) {
+            ...fadeIn
+        }
+    }
+`
 const Background = styled.div`
     background: var(--color-black);
     width: 100%;
@@ -23,61 +36,90 @@ const StyledContainer = styled(Container)`
     @media ${device.laptopL} {
         padding: 12rem 4rem;
     }
-    @media ${device.tablet} {
-        padding: 8rem 4rem;
-    }
-    @media ${device.mobileL} {
-        padding: 8rem 2rem;
+    @media ${device.tabletL} {
+        padding: 5rem 2rem;
+        width: 100%;
+
+        > h1 {
+            font-size: 4.5rem;
+        }
     }
 `
 const ContentWrapper = styled.div`
-    margin-top: ${props => props.margin_top || 'none'};
+    margin-top: ${(props) => props.margin_top || 'none'};
     white-space: normal;
-    max-width: 79.2rem;
+    max-width: 79.8rem;
+
+    @media ${device.mobileL} {
+        max-width: 42.8rem;
+    }
 `
 
 const LeadershipWrapper = styled(Flex)`
     @media ${device.tabletL} {
         flex-direction: column;
+        margin-top: 1.6rem;
 
-        ${Wrapper} {
+        ${Box} {
             width: 28.2rem;
             margin-bottom: 4rem;
         }
         ${Header} {
-            text-align: center;
+            text-align: left;
         }
         ${Text} {
-            text-align: center;
+            text-align: left;
         }
     }
 `
 
 const LeadershipTitle = styled(Header)`
     margin-bottom: 0.8rem;
+
+    @media ${device.tabletL} {
+        font-size: 4rem;
+        margin-top: 1.6rem;
+    }
 `
 
 const LeadershipPosition = styled(Header)`
     margin-bottom: 1.6rem;
+
+    @media ${device.tabletL} {
+        font-size: 2.4rem;
+        margin-bottom: 2rem;
+    }
 `
 
 const NavigationWrapper = styled(Flex)`
-    margin-top: 1.6rem;
+    margin: 1.6rem 0;
 `
 
 const Navigation = styled(Flex)`
     cursor: pointer;
+    margin: 0 2.4rem;
+
+    @media ${device.tablet} {
+        margin: ${(props) => (props.left ? '0 3rem 0 0' : '0 0 0 3rem')};
+    }
+    @media ${device.mobileS} {
+        margin: ${(props) => (props.left ? '0 2rem 0 0' : '0 0 0 2rem')};
+    }
 `
 
 const Separator = styled.span`
     width: 2px;
     height: 3rem;
     background: white;
+
+    @media ${device.tabletL} {
+        height: 36px;
+    }
 `
 
 const StyledHeader = styled(Header)`
     transition: color 0.25s;
-    ${props =>
+    ${(props) =>
         props.active
             ? css`
                   color: var(--color-white);
@@ -88,54 +130,73 @@ const StyledHeader = styled(Header)`
                       color: rgba(255, 255, 255, 0.5);
                   }
               `}
+    @media ${device.tabletL} {
+        font-size: 3rem;
+    }
+    @media ${device.mobileL} {
+        font-size: 2rem;
+    }
+    @media ${device.mobileM} {
+        font-size: 1.8rem;
+    }
 `
 const TrailNavigation = styled.span`
     height: 4px;
     width: 4.6rem;
-    background: ${props => (props.active ? 'var(--color-red)' : 'var(--color-black)')};
+    background: ${(props) => (props.active ? 'var(--color-red)' : 'var(--color-black)')};
     margin: 1rem 0;
     transition: background 0.25s;
-`
-const useTabState = tab => {
-    const [active_tab, setActiveTab] = useState(tab)
-    const setTab = tab => {
-        if (tab === active_tab) return
-        setActiveTab(tab)
-        navigate(`#${tab}`)
+
+    @media ${device.tabletL} {
+        margin: 4px 0;
+        width: 5.6rem;
     }
-    return [active_tab, setTab]
-}
+`
+const StyledText = styled(Text)`
+    max-width: 48.6rem;
+    @media ${device.tabletL} {
+        font-size: var(--text-size-sm);
+    }
+`
 const About = () => {
-    const [active_tab, setTab] = useTabState('story')
-    const is_story = active_tab === 'story'
-    const is_leadership = active_tab === 'leadership'
+    const [is_mobile, setMobile] = useState(false)
+    const [active_tab, setActiveTab] = useTabState(['story', 'leadership'])
+    const [is_story, setStory] = useState(false)
+    const [is_leadership, setLeadership] = useState(false)
+
     useEffect(() => {
-        const new_tab = getLocationHash() || 'story'
-        setTab(new_tab)
-    })
+        setMobile(isBrowser() && getWindowWidth() <= size.tablet)
+    }, [getWindowWidth()])
+
+    useEffect(() => {
+        setStory(active_tab === 'story')
+        setLeadership(active_tab === 'leadership')
+    }, [active_tab])
+
+    const data = useStaticQuery(query)
     return (
         <Layout>
             <SEO
+                title={localize('About Us | An Online Trading Platform | Deriv.com')}
                 description={localize(
-                    'Deriv is the new platform developed by Binary Group - a pioneer and award-winning online trading platform in the trading market.',
+                    'Deriv.com - A Binary.com brand, is a pioneer and award-winning online trading platform in the trading market.',
                 )}
-                title={localize('About Us | An Online Trading Platform')}
             />
             <Background>
                 <StyledContainer direction="column">
-                    <Header as="h1" color="white" align="center">
+                    <Header as="h1" type="display-title" color="white" align="center">
                         {localize('About us')}
                     </Header>
                     <NavigationWrapper direction="row">
                         <Navigation
+                            left
                             width="auto"
                             direction="column"
-                            m="0 2.4rem"
-                            onClick={() => setTab('story')}
+                            onClick={() => setActiveTab('story')}
                         >
                             <StyledHeader
                                 as="h2"
-                                font_size="var(--text-size-m)"
+                                type="sub-section-title"
                                 weight="normal"
                                 active={is_story}
                             >
@@ -147,12 +208,11 @@ const About = () => {
                         <Navigation
                             width="auto"
                             direction="column"
-                            m="0 2.4rem"
-                            onClick={() => setTab('leadership')}
+                            onClick={() => setActiveTab('leadership')}
                         >
                             <StyledHeader
                                 as="h2"
-                                font_size="var(--text-size-m)"
+                                type="sub-section-title"
                                 weight="normal"
                                 active={is_leadership}
                             >
@@ -163,59 +223,113 @@ const About = () => {
                     </NavigationWrapper>
 
                     {is_story && (
-                        <ContentWrapper margin_top="9.1rem">
-                            <Text margin="0 0 1.5rem 0" secondary color="white">
-                                {localize(
-                                    'The story of Deriv starts in 1999. Regent Markets Group, the founding company, was established with a mission to make online trading accessible to the masses. The Group has since rebranded and evolved, but its founding mission remains unchanged.',
-                                )}
-                            </Text>
+                        <ContentWrapper margin_top={9.1}>
+                            <Show.Desktop>
+                                <Text mb="1.5rem" size="var(--text-size-s)" secondary color="white">
+                                    {localize(
+                                        'The story of Deriv starts in 1999. Regent Markets Group, the founding company, was established with a mission to make online trading accessible to the masses. The Group has since rebranded and evolved, but its founding mission remains unchanged.',
+                                    )}
+                                </Text>
 
-                            <Text secondary color="white">
-                                {localize(
-                                    'Our evolution is powered by over 20 years of customer focus and innovation.',
-                                )}
-                            </Text>
+                                <Text secondary color="white">
+                                    {localize(
+                                        'Our evolution is powered by over 20 years of customer focus and innovation.',
+                                    )}
+                                </Text>
+                            </Show.Desktop>
+
+                            <Show.Mobile>
+                                <Text mb="1.5rem" size="2rem" secondary color="white">
+                                    {localize(
+                                        'The story of Deriv starts in 1999. Regent Markets Group, the founding company, was established with a mission to make online trading accessible to the masses. The Group has since rebranded and evolved, but its founding mission remains unchanged.',
+                                    )}
+                                </Text>
+
+                                <Text size="2rem" secondary color="white">
+                                    {localize(
+                                        'Our evolution is powered by over 20 years of customer focus and innovation.',
+                                    )}
+                                </Text>
+                            </Show.Mobile>
                         </ContentWrapper>
                     )}
                     {is_leadership && (
-                        <ContentWrapper>
-                            <LeadershipWrapper mt="4rem" ai="center">
-                                <Wrapper max_width="28.2rem" margin={{ right: '2.4rem' }}>
-                                    <Image
-                                        width="28.2rem"
-                                        img_name="jean-yves.png"
-                                        alt={localize('Jean Yves')}
-                                    />
-                                </Wrapper>
+                        <>
+                            <Show.Desktop>
+                                <ContentWrapper>
+                                    <LeadershipWrapper mt="4rem" ai="center">
+                                        <Box max_width="28.2rem" mr="2.4rem">
+                                            <QueryImage
+                                                data={data['jean_yves']}
+                                                alt={localize('Jean Yves')}
+                                                width="28.2rem"
+                                            />
+                                        </Box>
 
-                                <div>
-                                    <LeadershipTitle
-                                        as="h3"
-                                        size="var(--text-size-header-1)"
-                                        color="white"
-                                    >
-                                        <Localize translate_text="Jean-Yves Sireau" />
-                                    </LeadershipTitle>
-                                    <LeadershipPosition
-                                        as="h4"
-                                        weight="normal"
-                                        color="white"
-                                        lh="3.6rem"
-                                    >
-                                        {localize('Founder and Chief Executive Officer')}
-                                    </LeadershipPosition>
-                                    <Text color="white">
-                                        {localize(
-                                            'Jean-Yves has been an entrepreneur since the age of 20. From 1997 to 1999, he developed the algorithms that would become one of the world’s first trading platforms. He was granted a patent for his binary options trading system in 2007, and granted two more patents in 2011 for systems and methods that enable financial market speculation.',
-                                        )}
-                                    </Text>
-                                </div>
-                            </LeadershipWrapper>
-                        </ContentWrapper>
+                                        <div>
+                                            <LeadershipTitle
+                                                as="h3"
+                                                type="section-title"
+                                                color="white"
+                                            >
+                                                <Localize translate_text="Jean-Yves Sireau" />
+                                            </LeadershipTitle>
+                                            <LeadershipPosition
+                                                as="h4"
+                                                type="sub-section-title"
+                                                weight="normal"
+                                                color="white"
+                                                lh="3.6rem"
+                                            >
+                                                {localize('Founder and Chief Executive Officer')}
+                                            </LeadershipPosition>
+                                            <StyledText color="white">
+                                                {localize(
+                                                    'Jean-Yves has been an entrepreneur since the age of 20. From 1997 to 1999, he developed the algorithms that would become one of the world’s first trading platforms. He was granted a patent for his binary options trading system in 2007, and granted two more patents in 2011 for systems and methods that enable financial market speculation.',
+                                                )}
+                                            </StyledText>
+                                        </div>
+                                    </LeadershipWrapper>
+                                </ContentWrapper>
+                            </Show.Desktop>
+                            <Show.Mobile>
+                                <ContentWrapper>
+                                    <LeadershipWrapper mt="4rem" ai="center">
+                                        <QueryImage
+                                            data={data['jean_yves_mobile']}
+                                            alt={localize('Jean Yves')}
+                                            width="100%"
+                                        />
+                                        <div>
+                                            <LeadershipTitle
+                                                as="h3"
+                                                size="var(--text-size-header-1)"
+                                                color="white"
+                                            >
+                                                <Localize translate_text="Jean-Yves Sireau" />
+                                            </LeadershipTitle>
+                                            <LeadershipPosition
+                                                as="h4"
+                                                weight="normal"
+                                                color="white"
+                                                lh="3.6rem"
+                                            >
+                                                {localize('Founder and Chief Executive Officer')}
+                                            </LeadershipPosition>
+                                            <StyledText color="white">
+                                                {localize(
+                                                    'Jean-Yves has been an entrepreneur since the age of 20. From 1997 to 1999, he developed the algorithms that would become one of the world’s first trading platforms. He was granted a patent for his binary options trading system in 2007, and granted two more patents in 2011 for systems and methods that enable financial market speculation.',
+                                                )}
+                                            </StyledText>
+                                        </div>
+                                    </LeadershipWrapper>
+                                </ContentWrapper>
+                            </Show.Mobile>
+                        </>
                     )}
                 </StyledContainer>
             </Background>
-            {is_story && <OurStory />}
+            {is_story && <OurStory is_mobile_menu={is_mobile} />}
             {is_leadership && <Leaders />}
         </Layout>
     )

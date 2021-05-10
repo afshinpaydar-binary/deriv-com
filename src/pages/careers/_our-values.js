@@ -14,8 +14,9 @@ const StyledHeader = styled(Header)`
 
 const GridItem = styled(Flex)`
     justify-content: flex-start;
+    align-items: flex-start;
 
-    svg {
+    img {
         width: 6.4rem;
         height: 6.4rem;
     }
@@ -29,7 +30,7 @@ const MiddleText = styled(Header)`
 const OurValues = () => (
     <SectionContainer style={{ backgroundColor: 'rgba(242,243,244,0.3)' }}>
         <Container direction="column" style={{ display: 'grid' }}>
-            <StyledHeader as="h3" align="center">
+            <StyledHeader as="h3" type="section-title" align="center">
                 Our values
             </StyledHeader>
             <CssGrid
@@ -43,8 +44,10 @@ const OurValues = () => (
                 mobile_columns="38.4rem"
             >
                 <GridItem direction="column">
-                    <Integrity />
-                    <MiddleText as="h4">Integrity</MiddleText>
+                    <img src={Integrity} alt="integrity" />
+                    <MiddleText as="h4" type="sub-section-title">
+                        Integrity
+                    </MiddleText>
                     <Text>
                         We believe that we should always do the right thing. This includes serving
                         our customers with honesty and transparency, settling all contracts by the
@@ -52,24 +55,30 @@ const OurValues = () => (
                     </Text>
                 </GridItem>
                 <GridItem direction="column">
-                    <Customer />
-                    <MiddleText as="h4">Customer focus</MiddleText>
+                    <img src={Customer} alt="customer" />
+                    <MiddleText as="h4" type="sub-section-title">
+                        Customer focus
+                    </MiddleText>
                     <Text>
                         We always put our customers first and dedicate ourselves to building
                         products and services that give them the best trading experience possible.
                     </Text>
                 </GridItem>
                 <GridItem direction="column">
-                    <Competence />
-                    <MiddleText as="h4">Competence</MiddleText>
+                    <img src={Competence} alt="competence" />
+                    <MiddleText as="h4" type="sub-section-title">
+                        Competence
+                    </MiddleText>
                     <Text>
                         We love to work with smart and talented people who are eager to roll up
                         their sleeves and get things done.
                     </Text>
                 </GridItem>
                 <GridItem direction="column">
-                    <Teamwork />
-                    <MiddleText as="h4">Teamwork</MiddleText>
+                    <img src={Teamwork} alt="teamwork" />
+                    <MiddleText as="h4" type="sub-section-title">
+                        Teamwork
+                    </MiddleText>
                     <Text>
                         We value positive team players who can work together to overcome challenges
                         and achieve common goals.

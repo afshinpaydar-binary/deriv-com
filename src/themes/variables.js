@@ -9,12 +9,15 @@ const Variables = css`
         --color-black-4: #182039;
         --color-black-5: #6e6e6e;
         --color-black-6: #000000;
+        --color-black-7: #0f0d0f;
+        --color-black-8: #151717;
         --color-white: #ffffff;
         --color-red: #ff444f;
         --color-red-1: #dd573a;
-        --color-red-2: #ffc9cc;
+        --color-red-2: #ffe8e9;
         --color-red-3: #d43e47;
         --color-red-4: #ff4449;
+        --color-red-5: #ff0024;
         --color-grey: #9b9b9b;
         --color-grey-1: #f4f4f4;
         --color-grey-2: #e8e8e8;
@@ -24,7 +27,7 @@ const Variables = css`
         --color-grey-6: #e6e9e9;
         --color-grey-7: #d6dadb;
         --color-grey-8: #f2f3f4;
-        --color-grey-9: c8d6d738;
+        --color-grey-9: #c8d6d738;
         --color-grey-10: #c8d6d738;
         --color-grey-11: #efefef;
         --color-grey-12: #585252;
@@ -37,13 +40,36 @@ const Variables = css`
         --color-grey-19: #c2c2c2;
         --color-grey-20: #e0e0e0;
         --color-grey-21: #e5e5e5;
+        --color-grey-22: #eaeced;
+        --color-grey-23: #fbfbfb;
+        --color-grey-24: #eff2f5;
+        --color-grey-25: #f9fafc;
+        --color-grey-26: #e9eaec;
+        --color-grey-27: #f8a2a8;
+        --color-grey-28: #f3f5f8;
+        --color-grey-29: #edeeef;
+        --color-grey-30: #f5f7fa;
+        --color-grey-31: #f8fafc;
+        --color-grey-32: #dcdee0;
+        --color-grey-33: #8e9190;
+        --color-grey-34: #e7e7e7;
+        --color-grey-35: #f5f7f9;
+        --color-grey-36: #f3f3f3;
+        --color-grey-37: #fafbfd;
+        --color-grey-38: #d6d7d8;
+        --color-grey-39: #f7fafb;
         --color-green: #85acb0;
         --color-blue: #4c76be;
         --color-blue-2: #365899;
         --color-blue-3: #2a3052;
+        --color-blue-4: #f1f6f7;
+        --color-blue-5: #85abaf;
+        --color-blue-6: #4fb5b3;
+        --color-blue-7: #4bb4b3;
         --color-yellow: #fff2df;
         --color-orange: #ff6544;
         --color-green-1: #bccdce;
+        --color-green-2: #e2ebec;
 
         /* sizes */
         --text-size-xxs: 1.2rem;
@@ -60,6 +86,7 @@ const Variables = css`
         --text-size-header-2: 2.8rem;
         --text-size-header-3: 7.2rem;
         --text-size-header-4: 4rem;
+        --text-size-header-5: 4.8rem;
     }
 `
 

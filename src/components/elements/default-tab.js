@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import styled, { css } from 'styled-components'
+import { Text } from './typography'
 import { Flex } from 'components/containers'
-import { Text } from 'components/elements'
+import { useTabState } from 'components/hooks/use-tab-state'
+import device from 'themes/device'
 
 const TabContent = styled.div`
     flex: 1;
@@ -11,24 +13,24 @@ const TabContent = styled.div`
 
 const TabButton = styled.button`
     z-index: 2;
-    height: 50px;
-    padding: 0 24px;
+    height: auto;
+    padding: 8px 24px 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
     cursor: pointer;
     background: transparent;
     outline: none;
     transition: border-color 0.2s ease-in;
     border: none;
     border-bottom: 2px solid var(--color-grey-2);
-    ${props =>
+    white-space: nowrap;
+    ${(props) =>
         props.selected &&
         css`
             border-color: var(--color-red);
             ${Text} {
-                color: var(--color-red);
+                font-weight: bold;
             }
         `}
 
@@ -36,23 +38,19 @@ const TabButton = styled.button`
     &:focus,
     &:active {
         border-bottom: 2px solid
-            ${props => (props.selected ? 'var(--color-red)' : 'var(--color-red-2)')};
+            ${(props) => (props.selected ? 'var(--color-red)' : 'var(--color-red-2)')};
     }
 `
 
 const TabList = styled.div`
     display: flex;
-    flex-direction: row;
     width: 100%;
     justify-content: center;
     position: relative;
-    @media (max-width: ${props => props.breakPoint}) {
-        flex-direction: column;
+    overflow: auto;
 
-        & > div,
-        & > div > button {
-            width: 100%;
-        }
+    @media ${device.mobileL} {
+        justify-content: space-between;
     }
 `
 
@@ -68,7 +66,19 @@ const LineDivider = styled.div`
 const Content = styled.div`
     flex: 1;
     width: 100%;
-    padding-top: 16px;
+`
+
+const TextWrapper = styled(Text)`
+    text-align: center;
+    font-size: var(--text-size-m);
+    color: var(--color-black);
+
+    @media ${device.tabletS} {
+        font-size: ${({ font_size }) => font_size ?? 'var(--text-size-sm)'};
+    }
+    @media ${device.mobileM} {
+        font-size: ${({ font_size }) => font_size ?? 'var(--text-size-s)'};
+    }
 `
 
 const TabPanel = ({ children }) => (
@@ -81,33 +91,35 @@ TabPanel.propTypes = {
     children: PropTypes.node,
 }
 
-const Tabs = ({ children, tab_break }) => {
-    const [selected_tab, setSelectedTab] = React.useState(0)
-    const selectTab = tabIndex => {
-        setSelectedTab(tabIndex)
-    }
+const Tabs = ({ children, route_from, tab_list }) => {
+    const [selected_tab, setSelectedTab] = useState(0)
+    const [active_tab, setActiveTab] = useTabState(tab_list)
+
+    useEffect(() => {
+        setSelectedTab(tab_list.indexOf(active_tab))
+    }, [active_tab])
 
     return (
         <Flex direction="column">
-            <TabList breakPoint={tab_break} role="tablist">
+            <TabList role="tablist">
                 {React.Children.map(children, ({ props: { label } }, index) => (
                     <TabButton
                         role="tab"
                         selected={selected_tab === index}
                         aria-selected={selected_tab === index ? 'true' : 'false'}
-                        onClick={() => selectTab(index)}
+                        onClick={() => setActiveTab(tab_list[index])}
                     >
-                        <Text size="var(--text-size-m)" color="red-2" weight="bold">
+                        <TextWrapper font_size={route_from === 'markets' ? '24px' : undefined}>
                             {label}
-                        </Text>
+                        </TextWrapper>
                     </TabButton>
                 ))}
                 <LineDivider />
             </TabList>
 
             <Content>
-                {React.Children.map(children, (comp, index) =>
-                    selected_tab === index ? comp : undefined,
+                {React.Children.map(children, (el, index) =>
+                    selected_tab === index ? el : undefined,
                 )}
             </Content>
         </Flex>
@@ -118,7 +130,8 @@ Tabs.Panel = TabPanel
 
 Tabs.propTypes = {
     children: PropTypes.node,
-    tab_break: PropTypes.string,
+    route_from: PropTypes.string,
+    tab_list: PropTypes.array,
 }
 
 export default Tabs

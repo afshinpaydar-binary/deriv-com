@@ -1,285 +1,213 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import kid_data from './data/_kid_data.js'
 import { Text, Accordion, AccordionItem, LinkText } from 'components/elements'
 import { Flex } from 'components/containers'
 import { localize } from 'components/localization'
-import PDFIcon from 'images/svg/pdf-icon.svg'
-import XLSXIcon from 'images/svg/xlsx-icon.svg'
 import device from 'themes/device'
+import PDFIcon from 'images/svg/pdf-icon-black.svg'
+import XLSXIcon from 'images/svg/excel.svg'
 
-const IconContainer = styled(Flex)`
-    justify-content: flex-start;
+const FlexText = styled(LinkText)`
+    width: 26%;
+    display: flex;
     align-items: center;
-    min-width: ${props => props.minWidth || ''};
-    padding-bottom: ${props => props.paddingBottom || ''};
-    text-decoration: none;
+    justify-content: flex-start;
 
-    svg {
+    & > img {
         margin-right: 0.8rem;
     }
-    &:hover {
-        cursor: pointer;
-
-        ${LinkText} {
-            color: var(--color-red);
-            text-decoration: underline;
-        }
+    @media ${device.laptopM} {
+        width: 40%;
     }
-    @media ${device.tablet} {
-        padding-bottom: 0;
-        width: 100%;
+    @media ${device.tabletS} {
+        width: 80%;
+        justify-content: flex-start;
+        padding-left: 15rem;
+    }
+    @media (max-width: 500px) {
+        padding-left: 8.5rem;
+    }
+    @media ${device.mobileM} {
+        padding-left: 6rem;
+    }
+    @media ${device.mobileS} {
+        padding-left: 4.5rem;
     }
 `
 
+const FlexText_Pillar = styled(LinkText)`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & > img {
+        margin-right: 0.8rem;
+    }
+`
 const EdgeFlex = styled(Flex)`
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-left: 5%;
+
     /* Edge does not support space-evenly */
     @supports (-ms-ime-align: auto) {
         justify-content: space-around;
     }
+    @media ${device.laptopM} {
+        margin-left: 9%;
+    }
+    @media ${device.tabletL} {
+        margin-left: 18%;
+    }
+    @media ${device.tabletS} {
+        flex-direction: column;
+        margin-left: 10%;
+    }
 `
 
-const RTS28 = ({ urls }) => (
-    <EdgeFlex mt="1.8rem" spacing="8rem" jc="space-evenly" wrap="wrap">
-        <IconContainer
-            width="unset"
-            as="a"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={urls[0]}
-        >
-            <PDFIcon />
-            <LinkText color="red" weight="bold" as="p">
-                {localize('BIEL RTS28 for 2017')}
-            </LinkText>
-        </IconContainer>
-        <IconContainer
-            width="unset"
-            as="a"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={urls[1]}
-        >
-            <PDFIcon />
-            <LinkText color="red" weight="bold" as="p">
-                {localize('BIEL RTS28 for 2018')}
-            </LinkText>
-        </IconContainer>
-    </EdgeFlex>
+const RTS27_28 = () => (
+    <>
+        <EdgeFlex>
+            <FlexText
+                color="red"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/regulatory/RTS28-2020.pdf"
+                m="1.6rem 2.4rem"
+            >
+                <img src={PDFIcon} alt="pdf icon black" />
+                <span>{localize('RTS28 2020')}</span>
+            </FlexText>
+            <FlexText
+                color="red"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/regulatory/RTS28-2019.pdf"
+                m="1.6rem 2.4rem"
+            >
+                <img src={PDFIcon} alt="pdf icon black" />
+                <span>{localize('RTS28 2019')}</span>
+            </FlexText>
+            <FlexText
+                color="red"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/regulatory/RTS27-2020.xlsx"
+                m="1.6rem 2.4rem"
+            >
+                <img src={XLSXIcon} alt="excel" />
+                <span>{localize('RTS27 2020')}</span>
+            </FlexText>
+            <FlexText
+                color="red"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/regulatory/RTS27-2019.xlsx"
+                m="1.6rem 2.4rem"
+            >
+                <img src={XLSXIcon} alt="excel" />
+                <span>{localize('RTS27 2019')}</span>
+            </FlexText>
+        </EdgeFlex>
+    </>
 )
-RTS28.propTypes = {
-    urls: PropTypes.array,
-}
 
-const QuarterHeader = styled(Text)`
-    padding-bottom: 1.6rem;
-`
+const DocumentAccordion = (locale) => {
+    const content_style = {
+        background: 'var(--color-white)',
+        boxShadow: '-2px 6px 15px 0 rgba(195, 195, 195, 0.31)',
+    }
+    const header_style = {
+        borderRadius: '6px',
+    }
+    const item_style = {
+        padding: '1.6rem',
+        position: 'relative',
+        background: 'var(--color-white)',
+    }
+    const parent_style = {
+        marginBottom: '2.4rem',
+        width: '100%',
+    }
 
-const QuarterTable = ({ quarters }) => (
-    <div style={{ padding: '0.8rem' }}>
-        {quarters.map((quarter, idx) => (
-            <div key={idx} style={{ paddingBottom: idx === quarters.length - 1 ? '' : '1.6rem' }}>
-                <QuarterHeader align="center">{quarter.name}</QuarterHeader>
-                <Flex jc="flex-start" wrap="wrap">
-                    <IconContainer
-                        width="unset"
-                        minWidth="49%"
-                        paddingBottom="1.6rem"
-                        as="a"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={quarter.urls[0]}
-                    >
-                        <XLSXIcon />
-                        <LinkText color="red" weight="bold" as="p">
-                            {localize('Table 1 - Type of execution venue')}
-                        </LinkText>
-                    </IconContainer>
-                    <IconContainer
-                        paddingBottom="1.6rem"
-                        width="unset"
-                        as="a"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={quarter.urls[1]}
-                    >
-                        <XLSXIcon />
-                        <LinkText color="red" weight="bold" as="p">
-                            {localize('Table 4 - Daily Price information')}
-                        </LinkText>
-                    </IconContainer>
-                    <IconContainer
-                        width="unset"
-                        minWidth="49%"
-                        as="a"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={quarter.urls[2]}
-                    >
-                        <XLSXIcon />
-                        <LinkText color="red" weight="bold" as="p">
-                            {localize('Table 3 - Intra-Day Price information')}
-                        </LinkText>
-                    </IconContainer>
-                    <IconContainer
-                        width="unset"
-                        as="a"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={quarter.urls[3]}
-                    >
-                        <XLSXIcon />
-                        <LinkText color="red" weight="bold" as="p">
-                            {localize('Table 6 - Likelihood of execution information')}
-                        </LinkText>
-                    </IconContainer>
-                </Flex>
-            </div>
-        ))}
-    </div>
-)
-QuarterTable.propTypes = {
-    quarters: PropTypes.array,
-    urls: PropTypes.array,
-}
+    const selected_language = locale.locale.language || 'en'
+    const supported_languages = ['es', 'it', 'pl', 'pt']
 
-const DocumentAccordion = () => {
+    const is_supported_language = (language) => supported_languages.includes(language)
+
     return (
-        <div style={{ maxWidth: '792px' }}>
-            <Accordion>
-                <AccordionItem header={localize('Pillar 3 disclosures')}>
-                    <Text>
-                        {localize(
-                            'The Pillar 3 disclosure report of Binary Investments (Europe) Limited has been prepared in accordance with the Capital Requirements Directive IV and the Capital Requirements Regulation. Read our Pillar 3 disclosure report to understand how we comply with market discipline as a market participant.',
-                        )}
-                    </Text>
-                    <Flex mt="1.8rem">
-                        <IconContainer
-                            width="unset"
-                            as="a"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href="/pillar-3-disclosure-report.pdf"
-                        >
-                            <PDFIcon />
-                            <LinkText color="red" weight="bold" as="p">
-                                {localize('Open pillar 3 disclosure report')}
-                            </LinkText>
-                        </IconContainer>
-                    </Flex>
-                </AccordionItem>
-                <AccordionItem header={localize('Key information documents')}>
-                    <Text>
-                        {localize(
-                            'These documents provide you with key information about our investment products. This information is required by law to help you understand the nature, risks, costs, potential gains and losses of these products and to help you compare them with other products.',
-                        )}
-                    </Text>
-                    <EdgeFlex mt="1.8rem" spacing="8rem" jc="space-evenly">
-                        <IconContainer
-                            width="unset"
-                            as="a"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href="/kid_commodities.pdf"
-                        >
-                            <PDFIcon />
-                            <LinkText color="red" weight="bold" as="p">
-                                {localize('Commodities')}
-                            </LinkText>
-                        </IconContainer>
-                        <IconContainer
-                            width="unset"
-                            as="a"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href="/kid_forex.pdf"
-                        >
-                            <PDFIcon />
-                            <LinkText color="red" weight="bold" as="p">
-                                {localize('Forex')}
-                            </LinkText>
-                        </IconContainer>
-                        <IconContainer
-                            width="unset"
-                            as="a"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href="/kid_crypto.pdf"
-                        >
-                            <PDFIcon />
-                            <LinkText color="red" weight="bold" as="p">
-                                {localize('Cryptocurrency')}
-                            </LinkText>
-                        </IconContainer>
+        <Accordion has_single_state id="kid">
+            <AccordionItem
+                header={localize('Pillar III disclosures')}
+                content_style={content_style}
+                header_style={header_style}
+                style={item_style}
+                parent_style={parent_style}
+            >
+                <Text>
+                    {localize(
+                        'Deriv Investments (Europe) Limited has prepared the Pillar III disclosure report in accordance with the Capital Requirements Directive IV and the Capital Requirements Regulation. Read our report to understand how we comply with market discipline as a market participant.',
+                    )}
+                </Text>
+                <Flex mt="1.8rem">
+                    <FlexText_Pillar
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="/regulatory/DIEL_Pillar_3.pdf"
+                        color="red"
+                    >
+                        <img src={PDFIcon} alt="pdf icon black" />
+                        <span>{localize('Pillar III disclosure report')}</span>
+                    </FlexText_Pillar>
+                </Flex>
+            </AccordionItem>
+            <AccordionItem
+                header={localize('Key information documents')}
+                content_style={content_style}
+                header_style={header_style}
+                style={item_style}
+                parent_style={parent_style}
+            >
+                <Text>
+                    {localize(
+                        'These documents provide you with key information about our investment products. This information is required by law to help you understand the nature, risks, costs, potential gains, and losses of these products and to help you compare them with other products.',
+                    )}
+                </Text>
+                <Flex>
+                    <EdgeFlex mt="1.8rem">
+                        {kid_data.map((data, idx) => (
+                            <FlexText
+                                key={idx}
+                                color="red"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href={`/regulatory/kid/${
+                                    is_supported_language(selected_language)
+                                        ? selected_language + '/'
+                                        : ''
+                                }${data.ref}`}
+                                m="1.6rem 2.4rem"
+                            >
+                                <img src={PDFIcon} alt="pdf icon black" />
+                                <span>{data.title}</span>
+                            </FlexText>
+                        ))}
                     </EdgeFlex>
-                </AccordionItem>
-                <AccordionItem header="RTS 28">
-                    <Text>
-                        {localize(
-                            'These documents provide you with key information about our investment products. This information is required by law to help you understand the nature, risks, costs, potential gains and losses of these products and to help you compare them with other products.',
-                        )}
-                    </Text>
-                    <RTS28 urls={['/BIEL-RTS28-for-2017.pdf', '/BIEL-RTS28-for-2018.pdf']} />
-                </AccordionItem>
-                <AccordionItem header="RTS 27 2019">
-                    <QuarterTable
-                        quarters={[
-                            {
-                                name: 'Q1 2019',
-                                urls: [
-                                    '/RTS_27_Q1_2019_Table_1.xlsx',
-                                    '/RTS_27_Q1_2019_Table_4.xlsx',
-                                    '/RTS_27_Q1_2019_Table_3.xlsx',
-                                    '/RTS_27_Q1_2019_Table_6.xlsx',
-                                ],
-                            },
-                            {
-                                name: 'Q2 2019',
-                                urls: [
-                                    '/RTS_27_Q2_2019_Table_1.xlsx',
-                                    '/RTS_27_Q2_2019_Table_4.xlsx',
-                                    '/RTS_27_Q2_2019_Table_3.xlsx',
-                                    '/RTS_27_Q2_2019_Table_6.xlsx',
-                                ],
-                            },
-                            {
-                                name: 'Q3 2019',
-                                urls: [
-                                    '/RTS_27_Q3_2019_Table_1.xlsx',
-                                    '/RTS_27_Q3_2019_Table_4.xlsx',
-                                    '/RTS_27_Q3_2019_Table_3.xlsx',
-                                    '/RTS_27_Q3_2019_Table_6.xlsx',
-                                ],
-                            },
-                        ]}
-                    />
-                </AccordionItem>
-                <AccordionItem header="RTS 27 2018">
-                    <QuarterTable
-                        quarters={[
-                            {
-                                name: 'Q3 2018',
-                                urls: [
-                                    '/RTS_27_Q3_2018_Table_1.xlsx',
-                                    '/RTS_27_Q3_2018_Table_4.xlsx',
-                                    '/RTS_27_Q3_2018_Table_3.xlsx',
-                                    '/RTS_27_Q3_2018_Table_6.xlsx',
-                                ],
-                            },
-                            {
-                                name: 'Q4 2018',
-                                urls: [
-                                    '/RTS_27_Q4_2018_Table_1.xlsx',
-                                    '/RTS_27_Q4_2018_Table_4.xlsx',
-                                    '/RTS_27_Q4_2018_Table_3.xlsx',
-                                    '/RTS_27_Q4_2018_Table_6.xlsx',
-                                ],
-                            },
-                        ]}
-                    />
-                </AccordionItem>
-            </Accordion>
-        </div>
+                </Flex>
+            </AccordionItem>
+            <AccordionItem
+                header={localize('RTS')}
+                content_style={content_style}
+                header_style={header_style}
+                style={item_style}
+                parent_style={parent_style}
+            >
+                <Flex>
+                    <RTS27_28 />
+                </Flex>
+            </AccordionItem>
+        </Accordion>
     )
 }
 

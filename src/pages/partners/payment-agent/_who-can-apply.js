@@ -10,20 +10,47 @@ import {
     Separator,
     StyledHeader,
     SecondaryHeader,
-    LineStyle,
-} from '../_who-can-apply'
+} from '../affiliate-ib/_who-can-apply'
 import { Flex } from 'components/containers'
 import { localize } from 'components/localization'
-import { Header, Text } from 'components/elements'
+import { Header, Text, Timeline } from 'components/elements'
 import { LinkButton } from 'components/form'
-// SVG
 import TradingExperts from 'images/svg/trading-experts.svg'
 import Affiliates from 'images/svg/affiliates.svg'
 import CommunityManagers from 'images/svg/community-managers.svg'
 import Email from 'images/svg/pa-email.svg'
 import Reply from 'images/svg/pa-reply.svg'
 import Listed from 'images/svg/pa-listed.svg'
-import LineVerticalSVG from 'images/svg/line-vertical-pa.svg'
+import device from 'themes/device'
+
+const HeaderHowToApply = styled(SecondaryHeader)`
+    @media ${device.tablet} {
+        margin-top: 3.2rem;
+        margin-left: -4.6rem;
+    }
+`
+const HowToApply = styled(Col)`
+    @media ${device.laptop} {
+        padding-left: 4rem;
+    }
+`
+const HowToApplyContent = styled.div`
+    margin-top: 0;
+    display: flex;
+`
+
+const ImageWrapper = styled.img`
+    margin-right: 1.6rem;
+    width: 48px;
+    height: 48px;
+`
+
+const WhoCanApplyWrapper = styled(Col)`
+    width: 100%;
+    max-width: 42.8rem;
+    display: flex;
+    flex-direction: column;
+`
 
 const StyledUl = styled.ul`
     list-style-type: disc;
@@ -33,52 +60,6 @@ const StyledUl = styled.ul`
 
 const Li = styled.li`
     margin-top: 0.8rem;
-`
-
-const LineVertical = styled(LineVerticalSVG)`
-    ${LineStyle}
-    height: 38.7rem;
-    margin-top: 11.5rem;
-    margin-right: 1.8rem;
-`
-
-const StyledSeparator = styled(Separator)`
-    width: 2px;
-    height: 50.3rem;
-    margin-top: 6rem;
-    margin-left: 6.4rem;
-    margin-right: 6.7rem;
-    position: relative;
-
-    &::after {
-        content: '';
-        position: absolute;
-        height: 1.6rem;
-        width: 1.6rem;
-        top: 50%;
-        left: -0.6rem;
-        border-top: 2px solid var(--color-grey-8);
-        border-right: 2px solid var(--color-grey-8);
-        transform: rotate(45deg);
-        background: white;
-    }
-`
-
-const StyledCol = styled(Col)`
-    max-width: 47.8rem;
-`
-
-const Section = styled(StyledSection)`
-    flex-wrap: wrap;
-
-    @media (max-width: 1280px) {
-        ${StyledSeparator} {
-            display: none;
-        }
-        ${Flex} {
-            margin-top: 3.2rem;
-        }
-    }
 `
 
 const SecondaryText = styled(Text)`
@@ -93,122 +74,137 @@ const ButtonWrapper = styled(CenteredSection)`
 const WhoCanApply = () => {
     return (
         <SectionWrapper padding="8rem 0">
-            <Section>
-                <StyledCol>
-                    <StyledHeader font_size="3.6rem">{localize('Who can apply')}</StyledHeader>
-                    <Wrapper>
-                        <TradingExperts />
-                        <Content max_width="36.4rem">
-                            <Header as="h4" lh="1.5">
-                                {localize('Currency exchangers')}
-                            </Header>
-                            <Text>
-                                {localize(
-                                    'Reputable online currency exchangers who want to gain more exposure and clients.',
-                                )}
-                            </Text>
-                        </Content>
-                    </Wrapper>
-                    <Wrapper>
-                        <Affiliates />
-                        <Content max_width="36.4rem">
-                            <Header as="h4" lh="1.5">
-                                {localize('Affiliates')}
-                            </Header>
-                            <Text>
-                                {localize('Deriv affiliates who want to support their clients.')}
-                            </Text>
-                        </Content>
-                    </Wrapper>
-                    <Wrapper>
-                        <CommunityManagers />
-                        <Content max_width="36.4rem">
-                            <Header as="h4" lh="1.5">
-                                {localize('Community managers')}
-                            </Header>
-                            <Text>
-                                {localize(
-                                    'Trusted influencers or community managers who want to earn extra revenue.',
-                                )}
-                            </Text>
-                        </Content>
-                    </Wrapper>
-                </StyledCol>
-                <StyledSeparator />
-                <Flex width="auto">
-                    <LineVertical />
-                    <Col>
-                        <SecondaryHeader font_size="3.6rem">
-                            {localize('How to apply')}
-                        </SecondaryHeader>
+            <StyledSection>
+                <Flex>
+                    <WhoCanApplyWrapper>
+                        <StyledHeader size="3.6rem">{localize('Who can apply')}</StyledHeader>
                         <Wrapper>
-                            <Email />
+                            <ImageWrapper src={TradingExperts} alt="trading experts" />
                             <Content max_width="36.4rem">
-                                <Header as="h4" lh="1.5">
-                                    {localize('Drop us an email')}
+                                <Header as="h4" type="sub-section-title">
+                                    {localize('Currency exchangers')}
                                 </Header>
-                                <Text>{localize('Send us an email with the following:')}</Text>
-                                <StyledUl>
-                                    <Li>
-                                        <Text>
-                                            {localize(
-                                                'Your name, email address, and contact number',
-                                            )}
-                                        </Text>
-                                    </Li>
-                                    <Li>
-                                        <Text>
-                                            {localize('Your website address (if you have one)')}
-                                        </Text>
-                                    </Li>
-                                    <Li>
-                                        <Text>
-                                            {localize(
-                                                'Payment methods you will accept from clients',
-                                            )}
-                                        </Text>
-                                    </Li>
-                                    <Li>
-                                        <Text>
-                                            {localize(
-                                                'The commission you will charge clients on deposits and withdrawals',
-                                            )}
-                                        </Text>
-                                    </Li>
-                                </StyledUl>
-                            </Content>
-                        </Wrapper>
-                        <Wrapper>
-                            <Reply />
-                            <Content max_width="36.4rem">
-                                <Header as="h4" lh="1.5">
-                                    {localize('Wait for our reply')}
-                                </Header>
-                                <SecondaryText>
+                                <Text>
                                     {localize(
-                                        'We’ll review your application and get in touch for further information and next steps.',
+                                        'Reputable online currency exchangers who want to gain more exposure and clients.',
                                     )}
-                                </SecondaryText>
+                                </Text>
                             </Content>
                         </Wrapper>
                         <Wrapper>
-                            <Listed />
+                            <ImageWrapper src={Affiliates} alt="affiliates" />
                             <Content max_width="36.4rem">
-                                <Header as="h4" lh="1.5">
-                                    {localize('Get listed')}
+                                <Header as="h4" type="sub-section-title">
+                                    {localize('Affiliates')}
                                 </Header>
-                                <SecondaryText>
+                                <Text>
                                     {localize(
-                                        'After final approval from our compliance team, we’ll publish your details on our payment agent list.',
+                                        'Deriv affiliates who want to support their clients.',
                                     )}
-                                </SecondaryText>
+                                </Text>
                             </Content>
                         </Wrapper>
-                    </Col>
+                        <Wrapper>
+                            <ImageWrapper src={CommunityManagers} alt="community managers" />
+                            <Content max_width="36.4rem">
+                                <Header as="h4" type="sub-section-title">
+                                    {localize('Community managers')}
+                                </Header>
+                                <Text>
+                                    {localize(
+                                        'Trusted influencers or community managers who want to earn extra revenue.',
+                                    )}
+                                </Text>
+                            </Content>
+                        </Wrapper>
+                    </WhoCanApplyWrapper>
                 </Flex>
-            </Section>
-            <ButtonWrapper padding="7.4rem 0 0">
-                <LinkButton secondary external to="mailto:paymentagents@deriv.com">
+                <Separator />
+                <Flex>
+                    <HowToApply>
+                        <HeaderHowToApply mb="4rem" size="3.6rem">
+                            {localize('How to apply')}
+                        </HeaderHowToApply>
+                        <Timeline>
+                            <Timeline.Item>
+                                <HowToApplyContent>
+                                    <ImageWrapper src={Email} alt="email" />
+                                    <Content margin-top="0 px" max_width="36.4rem">
+                                        <Header as="h4" type="sub-section-title">
+                                            {localize('Drop us an email')}
+                                        </Header>
+                                        <Text>
+                                            {localize('Send us an email with the following:')}
+                                        </Text>
+                                        <StyledUl>
+                                            <Li>
+                                                <Text>
+                                                    {localize(
+                                                        'Your name, email address, and contact number',
+                                                    )}
+                                                </Text>
+                                            </Li>
+                                            <Li>
+                                                <Text>
+                                                    {localize(
+                                                        'Your website address (if you have one)',
+                                                    )}
+                                                </Text>
+                                            </Li>
+                                            <Li>
+                                                <Text>
+                                                    {localize(
+                                                        'Payment methods you will accept from clients',
+                                                    )}
+                                                </Text>
+                                            </Li>
+                                            <Li>
+                                                <Text>
+                                                    {localize(
+                                                        'The commission you will charge clients on deposits and withdrawals',
+                                                    )}
+                                                </Text>
+                                            </Li>
+                                        </StyledUl>
+                                    </Content>
+                                </HowToApplyContent>
+                            </Timeline.Item>
+                            <Timeline.Item>
+                                <HowToApplyContent>
+                                    <ImageWrapper src={Reply} alt="reply" />
+                                    <Content max_width="36.4rem">
+                                        <Header as="h4" type="sub-section-title">
+                                            {localize('Wait for our reply')}
+                                        </Header>
+                                        <SecondaryText>
+                                            {localize(
+                                                'We’ll review your application and get in touch for further information and next steps.',
+                                            )}
+                                        </SecondaryText>
+                                    </Content>
+                                </HowToApplyContent>
+                            </Timeline.Item>
+                            <Timeline.Item>
+                                <HowToApplyContent>
+                                    <ImageWrapper src={Listed} alt="listed" />
+                                    <Content max_width="36.4rem">
+                                        <Header as="h4" type="sub-section-title">
+                                            {localize('Get listed')}
+                                        </Header>
+                                        <SecondaryText>
+                                            {localize(
+                                                'After final approval from our compliance team, we’ll publish your details on our payment agent list.',
+                                            )}
+                                        </SecondaryText>
+                                    </Content>
+                                </HowToApplyContent>
+                            </Timeline.Item>
+                        </Timeline>
+                    </HowToApply>
+                </Flex>
+            </StyledSection>
+            <ButtonWrapper padding="3.4rem 0 0">
+                <LinkButton secondary external="true" to="mailto:partners@deriv.com" is_mail_link>
                     {localize('Send us an email to apply')}
                 </LinkButton>
             </ButtonWrapper>

@@ -8,12 +8,18 @@
  */
 import { isBrowser } from '../utility'
 const domain_config = {
-    production: {
-        hostname: 'www.deriv.com',
-        app_id: 11780,
-    },
+    production: [
+        {
+            hostname: 'deriv.com',
+            app_id: 11780,
+        },
+        {
+            hostname: 'deriv.me',
+            app_id: 1411,
+        },
+    ],
     staging: {
-        hostname: 'dev.deriv.com',
+        hostname: 'staging.deriv.com',
         app_id: 16303,
     },
     test: {
@@ -26,10 +32,14 @@ const domain_config = {
 }
 
 const isProduction = () =>
-    isBrowser() && domain_config.production.hostname === window.location.hostname
-
+    isBrowser() &&
+    domain_config.production.some((prod) => prod.hostname === window.location.hostname)
+const production_app_id_array =
+    isBrowser() &&
+    domain_config.production.filter((prod) => prod.hostname === window.location.hostname)
+const prod_app_id = production_app_id_array[0]?.app_id
 const isStaging = () => isBrowser() && domain_config.staging.hostname === window.location.hostname
-
+const isLive = () => isProduction() || isStaging()
 const isLocalHost = () => isBrowser() && domain_config.local.hostname === window.location.hostname
 
 const getAppId = () => {
@@ -49,7 +59,7 @@ const getAppId = () => {
             app_id = domain_config.local.app_id
         } else {
             window.localStorage.removeItem('config.default_app_id')
-            app_id = isProduction() ? domain_config.production.app_id : domain_config.test.app_id
+            app_id = isProduction() ? prod_app_id : domain_config.test.app_id
         }
     }
     return app_id
@@ -67,4 +77,4 @@ const getSocketURL = () => {
     return `wss://${server_url}/websockets/v3`
 }
 
-export { getAppId, getSocketURL, isProduction }
+export { getAppId, getSocketURL, isProduction, isLive, isLocalHost }

@@ -6,6 +6,7 @@ import Layout from 'components/layout/layout'
 import { localize } from 'components/localization'
 import { SideTab, StyledLink } from 'components/elements'
 import { Container, SEO } from 'components/containers'
+import device from 'themes/device'
 
 const Content = styled.div`
     display: flex;
@@ -16,14 +17,18 @@ const Content = styled.div`
 const TabWrapper = styled.div`
     width: 100%;
     margin-top: 8rem;
+
+    @media ${device.tabletL} {
+        margin-top: 0;
+    }
 `
 const ContactContainer = styled.div`
     margin-top: 8rem;
 `
-export const Article = ({ children, header }) => {
+export const Article = ({ children, header, title, description }) => {
     return (
         <Layout>
-            <SEO title={localize('Help Center | ' + header)} />
+            <SEO title={title} description={description} />
             <Container align="left" justify="flex-start" direction="column">
                 <StyledLink
                     to="/help-centre/"
@@ -32,16 +37,17 @@ export const Article = ({ children, header }) => {
                     size="var(--text-size-s)"
                     weight="bold"
                     arrow_margin="1rem"
-                    margin="4rem 0"
+                    margin="4rem 0 0"
                 >
                     {localize('Back')}
                 </StyledLink>
                 <Content>
                     <TabWrapper>
                         <SideTab
-                            has_hash_routing
+                            line_height="1.5"
+                            opacity="0.72"
+                            size="var(--text-size-s)"
                             tab_header={header}
-                            font_size="var(--text-size-s)"
                         >
                             {children}
                         </SideTab>
@@ -58,5 +64,7 @@ export const Article = ({ children, header }) => {
 
 Article.propTypes = {
     children: PropTypes.node,
+    description: PropTypes.string,
     header: PropTypes.string,
+    title: PropTypes.string,
 }

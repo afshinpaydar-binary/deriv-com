@@ -26,7 +26,6 @@ const GridCol = styled(CssGridColumn)`
         }
     }
     ${Text} {
-        margin-top: 1.8rem;
         @media ${device.tabletL} {
             font-size: 2rem;
         }
@@ -61,10 +60,14 @@ const Container = styled.div`
 
 const Col = ({ Icon, content, title }) => (
     <GridCol>
-        <Icon />
+        <img src={Icon} />
         <Container>
-            <StyledHeader as="h4">{title}</StyledHeader>
-            <Text lh="1.55">{content}</Text>
+            <StyledHeader as="h4" type="sub-section-title">
+                {title}
+            </StyledHeader>
+            <Text lh="1.55" mt="1.8rem">
+                {content}
+            </Text>
         </Container>
     </GridCol>
 )
@@ -100,7 +103,7 @@ export const IconGrid = () => (
                 Icon={ProvenTrackRecord}
                 title={localize('Proven track record')}
                 content={localize(
-                    'Binary Group – the owners of the Deriv and Binary.com brands – has a history that dates back to 1999 when we laid the groundwork for the world’s first fixed-odds trading service. Since then, we have grown from strength to strength, garnering the trust of traders around the world.',
+                    'Deriv Group – the owners of the Deriv and Binary.com brands – has a history that dates back to 1999 when we laid the groundwork for the world’s first fixed-odds trading service. Since then, we have grown from strength to strength, garnering the trust of traders around the world.',
                 )}
             />
             <Col
@@ -108,7 +111,7 @@ export const IconGrid = () => (
                 title={localize('Licensed and regulated')}
                 content={
                     <Localize
-                        translate_text="Deriv is <0>licensed and regulated</0> by several entities who ensure that we have systems in place to protect our clients. Our regulators include the Malta Financial Services Authority (MFSA), the Labuan Financial Services Authority (Labuan FSA), the Vanuatu Financial Services Commission (VFSC), and the British Virgin Islands Financial Services Commission."
+                        translate_text="Deriv is <0>regulated</0> by several entities including the Malta Financial Services Authority (MFSA), the Labuan Financial Services Authority (Labuan FSA), the Vanuatu Financial Services Commission (VFSC), and the British Virgin Islands Financial Services Commission."
                         components={[<LocalizedLink key={0} to="/regulatory/" />]}
                     />
                 }
@@ -117,7 +120,7 @@ export const IconGrid = () => (
                 Icon={ClientProtection}
                 title={localize('Client money protection')}
                 content={localize(
-                    'Deriv does not use your money for its business interests and you are allowed to withdraw your money at any time. All your money is segregated and held in secure and licensed financial institutions. In this way, in the unlikely event of Deriv becoming insolvent, all your money will be returned to you because it is never merged with ours.',
+                    'Deriv does not use your money for its business interests and you are allowed to withdraw your money at any time. All your money is segregated and held in secure financial institutions. In this way, in the unlikely event of Deriv becoming insolvent, all your money will be returned to you because it is never merged with ours.',
                 )}
             />
             <Col
@@ -126,7 +129,7 @@ export const IconGrid = () => (
                 content={
                     <Localize
                         translate_text="Online trading is exciting but involves risks and can lead to an addiction. At Deriv, we look out for our customers’ best interests and encourage them to practise <0>secure and responsible trading</0>. If you are new to this, you can also practise trading with unlimited virtual funds before you risk your money."
-                        components={[<LocalizedLink key={0} to="/responsible-trading/" />]}
+                        components={[<LocalizedLink key={0} to="/responsible/" />]}
                     />
                 }
             />
@@ -135,8 +138,18 @@ export const IconGrid = () => (
                 title={localize('Help when you need it')}
                 content={
                     <Localize
-                        translate_text="The Deriv support team is available 24/7 – even on weekends. You can raise issues easily by phone and a customer service ticketing system. We also have a <0>Help Centre</0> to answer your most common questions."
-                        components={[<LocalizedLink key={0} to="/help-centre/" />]}
+                        translate_text="The Deriv support team is available via live chat 24/7 – even on weekends. You can also find answers at our <0>Help centre</0> and get help from fellow traders in <1>Community</1>."
+                        components={[
+                            <LocalizedLink key={0} to="/help-centre/" />,
+                            <LocalizedLink
+                                key={1}
+                                to=""
+                                is_community_link
+                                external="true"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            />,
+                        ]}
                     />
                 }
             />

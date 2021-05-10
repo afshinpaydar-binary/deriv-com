@@ -4,7 +4,7 @@ import { asuncion } from '../../_model/_locations/_locations'
 import { LocationLayout } from '../_location-layout'
 import { SEO } from 'components/containers'
 import Layout from 'components/layout/layout'
-import { WithIntl } from 'components/localization'
+import { localize, WithIntl } from 'components/localization'
 
 const query = graphql`
     query {
@@ -26,7 +26,7 @@ const query = graphql`
         asuncion_grid_4: file(relativePath: { eq: "careers/asuncion_grid_4.png" }) {
             ...fadeIn
         }
-        map_asuncion: file(relativePath: { eq: "careers/map_asuncion.png" }) {
+        map_asuncion: file(relativePath: { eq: "careers/maps/map-paraguay.png" }) {
             ...fadeIn
         }
     }
@@ -36,8 +36,13 @@ const Asuncion = () => {
     const images = useStaticQuery(query)
 
     return (
-        <Layout type="careers" padding_top="10rem">
-            <SEO title={asuncion.display_name} />
+        <Layout type="careers">
+            <SEO
+                title={localize('Asunción | Our office – Paraguay | Deriv')}
+                description={localize(
+                    'Find your role with us by browsing Deriv job opportunities in Asunción, Paraguay.',
+                )}
+            />
             <LocationLayout location={asuncion} images={images} />
         </Layout>
     )

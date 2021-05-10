@@ -1,6 +1,10 @@
+import Cookies from 'js-cookie'
 import extend from 'extend'
+import { deriv_cookie_domain, deriv_app_languages } from './constants'
 
-const toISOFormat = date => {
+export const trimSpaces = (value) => value.trim()
+
+export const toISOFormat = (date) => {
     if (date instanceof Date) {
         const utc_year = date.getUTCFullYear()
         const utc_month = (date.getUTCMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1)
@@ -12,24 +16,31 @@ const toISOFormat = date => {
     return ''
 }
 
-const toHashFormat = string => string.replace(/\s+/g, '-').toLowerCase() // change space to dash then lowercase all
+export const toHashFormat = (string) => string.replace(/\s+/g, '-').toLowerCase() // change space to dash then lowercase all
 
-const isBrowser = () => typeof window !== 'undefined'
+export const isBrowser = () => typeof window !== 'undefined'
 
-const isEmptyObject = obj => {
+export const isEmptyObject = (obj) => {
     let is_empty = true
     if (obj && obj instanceof Object) {
-        Object.keys(obj).forEach(key => {
+        Object.keys(obj).forEach((key) => {
             if (Object.prototype.hasOwnProperty.call(obj, key)) is_empty = false
         })
     }
     return is_empty
 }
 
-const cloneObject = obj =>
+export const scrollTop = () => {
+    if (isBrowser()) {
+        document.body.scrollTop = 0
+        document.documentElement.scrollTop = 0
+    }
+}
+
+export const cloneObject = (obj) =>
     !isEmptyObject(obj) ? extend(true, Array.isArray(obj) ? [] : {}, obj) : obj
 
-const getPropertyValue = (obj, k) => {
+export const getPropertyValue = (obj, k) => {
     let keys = k
     if (!Array.isArray(keys)) keys = [keys]
     if (!isEmptyObject(obj) && keys[0] in obj && keys && keys.length > 1) {
@@ -38,34 +49,67 @@ const getPropertyValue = (obj, k) => {
     // else return clone of object to avoid overwriting data
     return obj ? cloneObject(obj[keys[0]]) : undefined
 }
-const getLocationHash = () =>
-    isBrowser() && (location.hash ? location.hash.substring(1).replace(/\/$/, '') : '')
+export const getLocationHash = () =>
+    isBrowser() && location.hash ? location.hash.slice(1).replace(/(\/)$/g, '') : ''
 
-const getLanguage = () => (isBrowser() ? localStorage.getItem('i18n') || 'en' : null)
-
-const getCrowdin = () =>
-    isBrowser() ? localStorage.getItem('jipt_language_code_deriv-com') || 'en' : null
-
-class PromiseClass {
-    constructor() {
-        this.promise = new Promise((resolve, reject) => {
-            this.reject = reject
-            this.resolve = resolve
-        })
+export const setLocationHash = (tab) => {
+    if (isBrowser()) {
+        location.hash = `#${tab}`
     }
 }
 
-const sanitize = input => input.replace(/[.*+?^${}()|[\]\\]/g, '')
+export const getLocationPathname = () => (isBrowser() && location ? location.pathname : '')
 
-const sentenceCase = input => input.charAt(0).toUpperCase() + input.slice(1)
+export const routeBack = () => {
+    if (isBrowser) {
+        window.history.back()
+    }
+}
+export const checkElemInArray = (tab_list, tab) => tab_list.includes(tab)
 
-function debounce(func, wait, immediate) {
+// Formats number to comma separated string
+export const getCommaSeparatedNumber = (input) =>
+    input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+export const getWindowWidth = () => (isBrowser() && window.screen ? window.screen.width : '')
+
+export const getLanguage = () =>
+    isBrowser() ? localStorage.getItem('i18n') || navigator.language : null
+
+export const getDerivAppLocalizedURL = (link, locale) => {
+    const lang = deriv_app_languages.includes(locale) ? locale : 'en'
+    return `${link}?lang=${lang.toUpperCase()}`
+}
+
+export const getCrowdin = () =>
+    isBrowser() ? localStorage.getItem('jipt_language_code_deriv-com') || navigator.language : null
+
+export const getClientInformation = (domain) => Cookies.getJSON('client_information', { domain })
+
+export const getUTMData = (domain) => Cookies.getJSON('utm_data', { domain })
+
+export const isLoggedIn = () => {
+    const domain = getDomain()
+    const client_information = getClientInformation(domain)
+    return !!client_information
+}
+
+export const isIndexEven = (index, reverse) => (reverse ? (index + 1) % 2 : index % 2)
+
+export const sanitize = (input) => input.replace(/[.*+?^${}()|[\]\\]/g, '')
+
+export const sentenceCase = (input) => input.charAt(0).toUpperCase() + input.slice(1)
+
+export const getCryptoDecimals = (input) =>
+    input.toFixed(1 - Math.floor(Math.log(input) / Math.log(10)))
+
+export function debounce(func, wait, immediate) {
     let timeout
-    return function() {
+    return function () {
         const context = this
         const args = arguments
 
-        const later = function() {
+        const later = function () {
             timeout = null
             if (!immediate) func.apply(context, args)
         }
@@ -78,25 +122,61 @@ function debounce(func, wait, immediate) {
     }
 }
 
-const deriv_app_url = 'https://deriv.app'
-const deriv_bot_app_url = 'https://deriv.app/bot'
-const brand_name = 'Deriv'
+// This function is created to back traverse an array of style values
+export const responsiveFallback = (prop, start_from, fallback) => {
+    let index = start_from ?? prop?.length ?? 0
+    while (prop && index > 0) {
+        if (prop[index]) {
+            return prop[index]
+        }
+        --index
+    }
 
-export {
-    deriv_app_url,
-    deriv_bot_app_url,
-    debounce,
-    brand_name,
-    isEmptyObject,
-    cloneObject,
-    isBrowser,
-    getCrowdin,
-    getPropertyValue,
-    getLanguage,
-    getLocationHash,
-    PromiseClass,
-    sanitize,
-    sentenceCase,
-    toISOFormat,
-    toHashFormat,
+    return prop ? prop[index] : fallback || undefined
+}
+
+// populate style by traversing keys of props
+export const populateStyle = (props, default_props_object, curr_index) => {
+    let style = ''
+
+    Object.keys(props).forEach((prop) => {
+        if (['children', 'theme'].includes(prop)) {
+            return
+        }
+
+        const current_prop = prop.replace(/_/g, '-')
+        style += `${current_prop}: ${
+            Array.isArray(props[prop])
+                ? responsiveFallback(props[prop], curr_index, default_props_object[prop])
+                : props[prop]
+        };`
+    })
+
+    style += applyDefaultValues(props, default_props_object)
+    return style
+}
+
+export const applyDefaultValues = (props, default_props_object) => {
+    let style = ''
+
+    Object.keys(default_props_object).forEach((prop) => {
+        if (!(prop in props)) {
+            const current_prop = prop.replace(/_/g, '-')
+            style += `${current_prop}: ${default_props_object[prop]};`
+        }
+    })
+
+    return style
+}
+
+export const getDomain = () =>
+    isBrowser() && window.location.hostname.includes(deriv_cookie_domain)
+        ? deriv_cookie_domain
+        : 'binary.sx'
+
+export const getLocalizedUrl = (path, is_index, to) => `/${path}${is_index ? `` : to}`
+
+export const nonENLangUrlReplace = (current_path) => {
+    const path_with_or_without_slash = /\/.+?(\/)|(\/\w+)/u
+    return current_path.replace(path_with_or_without_slash, '')
 }

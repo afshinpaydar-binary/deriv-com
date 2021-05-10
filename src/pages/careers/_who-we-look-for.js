@@ -45,7 +45,7 @@ const DescContainer = styled(Flex)`
 `
 
 const ImageDescription = styled.div`
-    ${props =>
+    ${(props) =>
         props.left
             ? css`
                   margin-right: 6.4rem;
@@ -67,7 +67,7 @@ const BoldSpan = styled.span`
 `
 
 const DescText = styled(ParimaryText)`
-    max-width: ${props => (props.mw ? props.mw : '38rem')};
+    max-width: ${(props) => (props.max_width ? props.max_width : '38rem')};
     margin-bottom: 3.2rem;
 
     &:last-child {
@@ -81,17 +81,17 @@ const ImageWrapper = styled.div`
 `
 const query = graphql`
     query {
-        teamfocus: file(relativePath: { eq: "careers/team-focus.png" }) {
+        teamfocus: file(relativePath: { eq: "careers/team-focus.jpg" }) {
             childImageSharp {
-                fluid(maxWidth: 650, srcSetBreakpoints: [400, 600, 960, 1280, 1920]) {
+                fluid(maxWidth: 650) {
                     ...GatsbyImageSharpFluid_withWebp_noBase64
                     originalName
                 }
             }
         }
-        peopleeating: file(relativePath: { eq: "careers/people-eating.png" }) {
+        peopleeating: file(relativePath: { eq: "careers/people-eating.jpg" }) {
             childImageSharp {
-                fluid(maxWidth: 650, srcSetBreakpoints: [400, 600, 960, 1280, 1920]) {
+                fluid(maxWidth: 650) {
                     ...GatsbyImageSharpFluid_withWebp_noBase64
                     originalName
                 }
@@ -114,16 +114,12 @@ const WhoWeLookFor = () => {
                 </ParimaryText>
             </StyledContainer>
             <Container direction="column">
-                <DiffHeader as="h3" align="center">
+                <DiffHeader as="h3" type="section-title" align="center">
                     What’s different about working at Deriv?
                 </DiffHeader>
                 <DescContainer direction="row" mb="14.4rem" jc="flex-start">
                     <ImageWrapper>
-                        <QueryImage
-                            data={data.teamfocus}
-                            alt={'What’s different about working at Deriv?'}
-                            width="100%"
-                        />
+                        <QueryImage data={data.teamfocus} alt={'Team Focus'} width="100%" />
                     </ImageWrapper>
                     <ImageDescription>
                         <DescText>
@@ -137,7 +133,7 @@ const WhoWeLookFor = () => {
                             and support each other to find robust solutions that solve problems for
                             our customers and partners.
                         </DescText>
-                        <DescText mw="40.7rem">
+                        <DescText max_width="40.7rem">
                             <BoldSpan>We’re purpose-driven.</BoldSpan> Our customers are at the
                             heart of everything we do, and that drives us to succeed. We value
                             commitment over complacency and accept challenges rather than the status
@@ -147,11 +143,7 @@ const WhoWeLookFor = () => {
                 </DescContainer>
                 <DescContainer direction="row-reverse" jc="flex-start">
                     <ImageWrapper>
-                        <QueryImage
-                            data={data.peopleeating}
-                            alt={'What’s different about working at Deriv?'}
-                            width="100%"
-                        />
+                        <QueryImage data={data.peopleeating} alt={'Team Lunch'} width="100%" />
                     </ImageWrapper>
                     <ImageDescription left>
                         <DescText>

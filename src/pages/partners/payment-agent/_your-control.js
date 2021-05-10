@@ -3,46 +3,83 @@ import styled from 'styled-components'
 import { Container, SectionContainer, Flex, CssGrid } from 'components/containers'
 import { localize } from 'components/localization'
 import { Header, Text } from 'components/elements'
+import device from 'themes/device'
 // SVG
-import Comission from 'images/svg/pa-comission.svg'
-import WithdrawDeposit from 'images/svg/pa-withdraw-deposit.svg'
-import OpenAccount from 'images/svg/pa-open-account.svg'
 import CloseAccount from 'images/svg/pa-close-account.svg'
+import Comission from 'images/svg/pa-comission.svg'
+import LoudSpeaker from 'images/svg/icon-loudspeaker.svg'
+import WithdrawDeposit from 'images/svg/pa-withdraw-deposit.svg'
 
 const Card = styled(Flex)`
-    padding: 3.2rem;
+    padding: 24px 32px;
     border-radius: 4px;
     box-shadow: 0 16px 20px 0 rgba(0, 0, 0, 0.05), 0 0 20px 0 rgba(0, 0, 0, 0.05);
     background: var(--color-white);
-    height: 13.6rem;
+    height: 12rem;
     width: auto;
+    justify-content: flex-start;
+    align-items: center;
+
+    @media ${device.laptop} {
+        height: 120px;
+    }
+
+    @media ${device.tabletL} {
+        flex-direction: column;
+        padding: 24px;
+        width: 328px;
+        min-height: 184px;
+        height: auto;
+    }
+    @media ${device.mobileM} {
+        width: 100%;
+    }
 `
 
 const CardText = styled(Text)`
-    max-width: 25.6rem;
-    margin-left: 1.6rem;
+    margin-left: 16px;
+
+    @media ${device.laptopM} {
+        font-size: 16px;
+    }
+
+    @media ${device.tabletL} {
+        width: 100%;
+        max-width: unset;
+        margin: 16px 0 0;
+        text-align: center;
+    }
+`
+
+const StyledText = styled(Text)`
+    @media ${device.tablet} {
+        font-size: 16px;
+        margin: 16px 0 24px;
+    }
 `
 
 const YourControl = () => {
     return (
         <SectionContainer background="grey-8">
             <Container direction="column">
-                <Header as="h3" font_size="var(--text-size-header-1)" align="center">
+                <Header as="h3" size="var(--text-size-header-1)" align="center">
                     {localize('You are in control')}
                 </Header>
-                <Text size="var(--text-size-m)" margin="1.6rem 0 3.2rem">
+                <StyledText size="2.4rem" align="center" m="12px 0 40px">
                     {localize('As a payment agent, you are an independent exchanger. You can:')}
-                </Text>
+                </StyledText>
                 <CssGrid
                     columns="repeat(2, 38.4rem)"
                     height="auto"
                     column_gap="2.4rem"
                     row_gap="2.4rem"
-                    tablet_columns="repeat(2, 1fr)"
+                    tablet_columns="1fr"
+                    tablet_row_gap="16px"
                     mobile_columns="1fr"
+                    mobile_row_gap="16px"
                 >
                     <Card>
-                        <Comission />
+                        <img src={Comission} alt="comission" />
                         <CardText>
                             {localize(
                                 'Determine your commission per transaction, subject to our established thresholds.',
@@ -50,17 +87,21 @@ const YourControl = () => {
                         </CardText>
                     </Card>
                     <Card>
-                        <OpenAccount />
-                        <CardText>{localize('Open an agency account with just $200.')}</CardText>
+                        <img src={LoudSpeaker} alt="promote services" />
+                        <CardText>
+                            {localize(
+                                'Choose which countries to service, and promote your services your way.',
+                            )}
+                        </CardText>
                     </Card>
                     <Card>
-                        <WithdrawDeposit />
+                        <img src={WithdrawDeposit} alt="withdraw deposit" />
                         <CardText>
                             {localize('Perform multiple deposits and withdrawals per day.')}
                         </CardText>
                     </Card>
                     <Card>
-                        <CloseAccount />
+                        <img src={CloseAccount} alt="close account" />
                         <CardText>{localize('Close your account at any time you want.')}</CardText>
                     </Card>
                 </CssGrid>

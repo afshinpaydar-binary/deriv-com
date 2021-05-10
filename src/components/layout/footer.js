@@ -1,498 +1,854 @@
-// TODO: (discussion) make footer pure component, and move usage of footer to custom
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { Container, CssGrid, Show, Flex } from '../containers'
-import { Text, StyledLink, Accordion, AccordionItem } from '../elements'
-import { localize, Localize, LanguageSwitcher } from 'components/localization'
-import { isProduction } from 'common/websocket/config'
+import { graphql, useStaticQuery } from 'gatsby'
+import PropTypes from 'prop-types'
+import { Container, CssGrid, Flex, Show } from '../containers'
+import { StyledLink, Text, QueryImage } from '../elements'
+import { LocationContext } from './location-context'
+import { deriv_status_page_url, mga_link_url } from 'common/constants'
+// TODO: (discussion) make footer pure component, and move usage of footer to custom
 import device from 'themes/device'
+import { localize, Localize, LocalizedLink } from 'components/localization'
 // Icons
+import CopyrightIc from 'images/svg/copyright.svg'
 import Logo from 'images/svg/deriv-footer.svg'
 import Twitter from 'images/svg/footer-twitter.svg'
 import Instagram from 'images/svg/footer-instagram.svg'
 import Facebook from 'images/svg/footer-facebook.svg'
-import Warning from 'images/svg/warning.svg'
-import Copyright from 'images/svg/copyright.svg'
+import Linkedin from 'images/svg/footer-linkedin.svg'
+//EU icons
+import Gamstop from 'images/svg/gamstop.svg'
+import MgaLogo from 'images/svg/mga-logo.svg'
+import Over18 from 'images/svg/over-18.svg'
 
-const DerivLogo = styled(Logo)`
-    width: 14.5rem;
-
-    @media ${device.tabletL} {
-        width: 20.5rem;
-    }
-`
 const StyledFooter = styled.footer`
-    background-color: var(--color-grey-8);
+    background-color: var(--color-grey-25);
     width: 100%;
     margin: 0 auto;
-    border-top: 1px solid var(--color-red);
+    margin-bottom: ${(props) => (props.has_banner_cookie ? '18.4rem' : '0')};
+    padding-bottom: 1.6rem;
 
     ${Container} {
-        min-width: 328px;
+        @media ${device.tabletL} {
+            width: 100%;
+        }
+    }
+
+    @media ${device.mobileL} {
+        padding-bottom: 6rem;
     }
 `
 const StyledGrid = styled(CssGrid)`
-    margin: 4rem 0;
-    grid-template-areas: 'info info info . . items items items items items items items';
+    width: 100%;
+    grid-template-columns: 2fr;
+    grid-template-areas:
+        'logo logo'
+        'links links'
+        'disclaimer disclaimer'
+        'copyright social'
+        'copyright eulogowrapper';
 
     @media ${device.tabletL} {
         grid-template-columns: 1fr;
-        grid-template-areas: 'info';
+        grid-template-areas:
+            'logo'
+            'links'
+            'social'
+            'disclaimer'
+            'eulogowrapper'
+            'copyright';
     }
 `
-const InfoSection = styled.div`
-    grid-area: info;
+const DerivLogoWrapper = styled.div`
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    width: 100%;
-
-    ${Text} {
-        margin-top: 2.2rem;
-        max-width: 28.2rem;
-
-        @media ${device.tabletL} {
-            font-size: var(--text-size-sm);
-            max-width: unset;
-        }
-    }
-`
-const Items = styled.div`
-    grid-area: items;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
     justify-content: space-between;
+    grid-area: logo;
+    background: var(--color-grey-25);
+    padding: 4rem 0 2rem 0;
 
     @media ${device.tabletL} {
-        display: none;
+        margin-left: 2rem;
     }
 `
-const BlackNav = styled.section`
-    background-color: var(--color-black);
-    width: 100%;
+const LinksWrapper = styled.div`
+    grid-area: links;
+    background: var(--color-grey-25);
+    padding: 0.8rem 0 2.4rem 0;
+    border-bottom: 1px solid var(--color-grey-26);
+    border-top: 2px solid var(--color-grey-26);
 
-    p {
-        font-size: var(--text-size-xs);
-        color: var(--color-white);
-        display: flex;
-        align-items: center;
-        line-height: normal;
-    }
-    svg {
-        margin-right: 0.8rem;
+    @media ${device.tabletL} {
+        padding: 0;
     }
 `
-const Col = styled.div`
-    width: ${props => props.width};
-    ${props => (props.margin_top ? 'margin-top: 3.9rem;' : '')}
+const LinksCol = styled(Flex)`
+    flex-direction: column;
+    width: fit-content;
+    min-width: 100px;
+    margin-right: 20px;
 
-    div {
-        margin-top: 0.8rem;
-    }
-    div:first-child {
-        margin: 0;
-    }
-    ul {
-        max-width: 15.2rem;
-        width: 98%;
-    }
-    @media ${device.tabletS} {
-        width: 50%;
-        margin-top: 3rem;
-
-        :nth-child(-n + 2) {
-            margin-top: 0;
-        }
+    :last-child {
+        margin-right: 0;
     }
 `
+
 const Title = styled(Text)`
     color: var(--color-black-6);
     font-weight: bold;
-    letter-spacing: 0.2rem;
 `
 const Link = styled(StyledLink)`
     color: var(--color-black-3);
-    margin-top: 0.8rem;
-    font-size: 1.6rem;
+    font-size: var(--text-size-xs);
     line-height: 1.5;
 `
-const Disclaimer = styled.section`
-    background-color: var(--color-grey-8);
+const LinkWrapper = styled.div`
+    margin-top: ${(props) => (props.first_child == 'true' ? '0.8rem' : '1.6rem')};
 
-    ${Container} {
-        border-top: 1px solid var(--color-red);
-
-        @media ${device.tabletL} {
-            border-top: unset;
+    @media ${device.laptopM} {
+        ${Title} {
+            font-size: var(--text-size-xs);
+        }
+        ${Link} {
+            font-size: var(--text-size-xs);
         }
     }
+`
+const Disclaimer = styled.div`
+    grid-area: disclaimer;
+    background: var(--color-grey-25);
+`
+const DisclaimerParagraph = styled(Text)`
+    font-size: var(--text-size-xs);
+    margin-top: ${(props) => (props.no_margin ? '0' : '2rem')};
 
     @media ${device.tabletL} {
-        border-top: 1px solid var(--color-red);
-        padding-top: 1.5rem;
-    }
-`
-const StyledContainer = styled(Container)`
-    padding: 1.6rem 0;
-`
-const Row = styled.div`
-    margin-top: ${props => (props.mt ? props.mt : '0')};
-    margin-bottom: ${props => (props.mb ? props.mb : '0')};
-    width: 100%;
-    align-items: center;
-    display: ${props => (props.flex ? 'flex' : 'block')};
-`
-const StyledText = styled(Text)`
-    text-align: justify;
-    color: var(--color-black-3);
-
-    @media ${device.tabletL} {
-        text-align: left;
+        width: 90%;
+        margin: 2rem auto 0;
         font-size: var(--text-size-sm);
     }
 `
-const BoldSharedCss = css`
+const shared_css = css`
     font-weight: bold;
     color: var(--color-black-3);
-    font-size: var(--text-size-s);
-
-    @media ${device.tabletL} {
-        font-size: var(--text-size-sm);
-    }
-`
-const BoldLink = styled(StyledLink)`
-    ${BoldSharedCss}
-`
-const Risk = styled(Text)`
-    ${BoldSharedCss}
-    margin-left: 0.9rem;
-`
-const StaticAsset = styled.a`
-    font-weight: bold;
-    color: var(--color-black-3);
-    font-size: var(--text-size-s);
+    font-size: var(--text-size-xs);
     text-decoration: none;
 
     :hover {
         text-decoration: underline;
     }
-
     @media ${device.tabletL} {
         font-size: var(--text-size-sm);
     }
 `
-const ExternalLink = styled.a`
-    text-decoration: none;
+const StaticAsset = styled.a`
+    ${shared_css}
 `
+const StaticAssetLink = styled(LocalizedLink)`
+    ${shared_css}
+`
+const RiskWarning = styled.div`
+    background-color: var(--color-grey-28);
+    border-left: 4px solid var(--color-grey-27);
+    padding: 1.6rem;
+    margin-top: 2rem;
 
-const SocialWrapper = styled(Flex)`
-    svg {
-        width: 4.2rem;
-        margin-right: 1rem;
-    }
-    ${Text} {
-        margin-top: 0;
-        letter-spacing: 2px;
-        color: var(--color-black-6);
-        margin-bottom: 0.8rem;
+    @media ${device.tabletL} {
+        border-top: 2px solid var(--color-grey-27);
+        border-left: none;
+        width: 90%;
+        margin: 4rem auto 0;
+        padding: 1rem;
 
-        @media ${device.tabletL} {
-            margin-bottom: 1rem;
+        p {
+            padding: 0;
+            width: 100%;
         }
     }
 `
-const SocialMedia = styled(Flex)`
+
+const BoldLink = styled(StyledLink)`
+    font-weight: bold;
+    color: var(--color-black-3);
+    font-size: var(--text-size-xs);
     @media ${device.tabletL} {
-        margin-top: 2rem;
-        flex-direction: row;
-    }
-`
-const MobileAccordion = styled.section`
-    border-top: 1px solid var(--color-red);
-    background-color: var(--color-grey-8);
-
-    p {
-        letter-spacing: 2px;
-    }
-`
-const Item = styled.div`
-    padding: 0 0 3rem 2rem;
-    background-color: var(--color-grey-8);
-
-    a {
         font-size: var(--text-size-sm);
     }
 `
-const MobileLanguageSwitcher = styled.div`
-    margin-top: 0.8rem;
-    
-    > ul {
-        top: 0;
-        width: 80px;
+const Copyright = styled(Flex)`
+    grid-area: copyright;
+    background: var(--color-grey-25);
+    justify-content: flex-start;
+    align-items: center;
+
+    p {
+        font-size: var(--text-size-xs);
+        line-height: 1.14;
+    }
+
+    @media ${device.tabletL} {
+        width: 90%;
+        margin: 0 auto;
+        padding: 2rem 0;
+        justify-content: center;
+
+        p {
+            font-size: 1.75rem;
+            line-height: 1.5;
+        }
     }
 `
+const EuLogoWrapper = styled(Flex)`
+    grid-area: eulogowrapper;
+`
+const SocialWrapper = styled.div`
+    grid-area: social;
+    background: var(--color-grey-25);
+    margin: 1.6rem 0;
+
+    img {
+        margin-left: 1.6rem;
+    }
+
+    @media ${device.tabletL} {
+        display: flex;
+        justify-content: center;
+        margin: 3rem 0 1rem;
+
+        a:first-child {
+            img {
+                margin-left: 0;
+            }
+        }
+    }
+`
+
+const StyledGamstop = styled.img`
+    margin-right: 2.4rem;
+`
+const StyledCoatArms = styled.div`
+    margin-right: 2.4rem;
+`
+const StyledMgaLogo = styled.img`
+    margin-right: 2.4rem;
+`
+const StyledLogo = styled.img`
+    width: 18.2rem;
+`
+
 const mobile_accordion_header = {
-    border: 'none',
-    padding: '0 2rem',
-    backgroundColor: 'var(--color-grey-8)',
-    boxShadow: 'none'
+    borderTop: '1px solid var(--color-grey-26)',
+    borderBottom: 'none',
+    padding: '0',
+    margin: '0 2rem',
+    backgroundColor: 'var(--color-grey-25)',
+    boxShadow: 'none',
 }
-const Footer = () => (
-    <StyledFooter>
-        <Container>
-            <StyledGrid columns="repeat(12, 1fr)" columngap="2.4rem" rowgap="3.9rem">
-                <InfoSection>
-                    <DerivLogo />
-                    <Text>
-                        {localize(
-                            'Deriv is a new trading platform created by the Binary Group, a multi-award winning pioneer in online trading.',
-                        )}
-                    </Text>
-                    <SocialMedia mt='3.1rem' jc='flex-start' direction='column'>
-                        <SocialWrapper mt='0.8rem' jc='space-between' direction='column'>
-                            <div>
-                                <Text>{localize('CONNECT WITH US')}</Text>
-                            </div>
-                            <div>
-                                <ExternalLink
-                                    href="https://www.facebook.com/derivdotcom/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Facebook />
-                                </ExternalLink>
-                                <ExternalLink
-                                    href="https://www.instagram.com/derivdotcom/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Instagram />
-                                </ExternalLink>
-                                <ExternalLink
-                                    href="https://twitter.com/derivdotcom"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Twitter />
-                                </ExternalLink>
-                            </div>
-                        </SocialWrapper>
-                        <div>
-                            <Show.Mobile>
-                                <MobileLanguageSwitcher>
-                                    {!isProduction() && <LanguageSwitcher short_name='true' />}
-                                </MobileLanguageSwitcher>
-                            </Show.Mobile>
-                        </div>
-                    </SocialMedia>
-                </InfoSection>
-                <Items>
-                    <Col width="23%">
-                        <div>
-                            <Title>{localize('TRADE')}</Title>
-                        </div>
-                        <div>
-                            <Link to="/dtrader">{localize('DTrader')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/dbot">{localize('DBot')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/dmt5">{localize('DMT5')}</Link>
-                        </div>
-                    </Col>
-                    <Col width="40%">
-                        <div>
-                            <Title>{localize('LEGAL')}</Title>
-                        </div>
-                        <div>
-                            <Link to="/regulatory">{localize('Regulatory information')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/terms-and-conditions">
-                                {localize('Terms and conditions')}
-                            </Link>
-                        </div>
-                        <div>
-                            <Link to="/responsible-trading">
-                                {localize('Secure and responsible trading')}
-                            </Link>
-                        </div>
-                    </Col>
-                    <Col width="25%">
-                        <div>
-                            <Title>{localize('SUPPORT')}</Title>
-                        </div>
-                        <div>
-                            <Link to="/help-centre">{localize('Help Centre')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/payment-methods">{localize('Payment methods')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/why-choose-us">{localize('Why choose us')}</Link>
-                        </div>
-                    </Col>
-                    <Col margin_top width="23%">
-                        <div>
-                            <Title>{localize('COMPANY')}</Title>
-                        </div>
-                        <div>
-                            <Link to="/about#story">{localize('Our story')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/about#leadership">{localize('Our leadership')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/contact-us">{localize('Contact us')}</Link>
-                        </div>
-                        <div>
-                            <Link to="/careers">{localize('Careers')}</Link>
-                        </div>
-                    </Col>
-                    <Col margin_top width="40%">
-                        <div>
-                            <Title>{localize('PARTNER WITH US')}</Title>
-                        </div>
-                        <div>
-                            <Link to="/partners">{localize('Partner programmes')}</Link>
-                        </div>
-                    </Col>
-                    <Col margin_top width="25%">
-                        {!isProduction() && <LanguageSwitcher />}
-                    </Col>
-                </Items>
-            </StyledGrid>
-        </Container>
-        <Show.Mobile>
-            <MobileAccordion>
-                <Accordion>
-                    <AccordionItem header={localize('TRADE')} arrow_thin header_style={mobile_accordion_header}>
-                        <Item>
-                            <Link to="/dtrader">{localize('DTrader')}</Link>
-                        </Item>
-                        <Item>
-                            <Link to="/dbot">{localize('DBot')}</Link>
-                        </Item>
-                        <Item>
-                            <Link to="/dmt5">{localize('DMT5')}</Link>
-                        </Item>
-                    </AccordionItem>
-                    <AccordionItem header={localize('LEGAL')} arrow_thin header_style={mobile_accordion_header}>
-                        <Item>
-                            <Link to="/regulatory">{localize('Regulatory information')}</Link>
-                        </Item>
-                        <Item>
-                            <Link to="/terms-and-conditions">
-                                {localize('Terms and conditions')}
-                            </Link>
-                        </Item>
-                        <Item>
-                            <Link to="/responsible-trading">
-                                {localize('Secure and responsible trading')}
-                            </Link>
-                        </Item>
-                    </AccordionItem>
-                    <AccordionItem header='SUPPORT' arrow_thin header_style={mobile_accordion_header}>
-                        <Item>
-                            <Link to="/help-centre">{localize('Help Centre')}</Link>
-                        </Item>
-                        <Item>
-                            <Link to="/payment-methods">{localize('Payment methods')}</Link>
-                        </Item>
-                        <Item>
-                            <Link to="/why-choose-us">{localize('Why choose us')}</Link>
-                        </Item>
-                    </AccordionItem>
-                    <AccordionItem header='COMPANY' arrow_thin header_style={mobile_accordion_header}>
-                        <Item>
-                            <Link to="/about">{localize('About us')}</Link>
-                        </Item>
-                        <Item>
-                            <Link to="/contact-us">{localize('Contact us')}</Link>
-                        </Item>
-                    </AccordionItem>
-                    <AccordionItem header='PARTNER WITH US' arrow_thin header_style={mobile_accordion_header}>
-                        <Item>
-                            <Link to="/partners">{localize('Partner programmes')}</Link>
-                        </Item>
-                    </AccordionItem>
-                </Accordion>
-            </MobileAccordion>
-        </Show.Mobile>
-        <Disclaimer>
-            <StyledContainer direction="column">
-                <Row>
-                    <StyledText>
-                        <Localize
-                            translate_text="In the EU, financial products are offered by Binary Investments (Europe) Ltd, W Business Centre, Level 3, Triq Dun Karm, Birkirkara, BKR 9033, Malta, regulated as a Category 3 Investment Services provider by the Malta Financial Services Authority (<0>view licence</0>)."
-                            components={[
-                                <StaticAsset
-                                    key={0}
-                                    target="_blank"
-                                    href="/WS-Binary-Investments-Europe-Limited.pdf"
-                                    rel="noopener noreferrer"
-                                />,
-                            ]}
-                        />
-                    </StyledText>
-                    <StyledText>
-                        <Localize
-                            translate_text="Outside the EU, financial products are offered by Binary (SVG) Ltd, Hinds Building, Kingstown, St Vincent and the Grenadines; Binary (V) Ltd, Govant Building, Port Vila, P.O. Box 1276, Vanuatu, regulated by the Vanuatu Financial Services Commission (<0>view licence</0>); Binary (BVI) Ltd, Kingston Chambers, P.O. Box 173, Road Town, Tortola, British Virgin Islands, regulated by the British Virgin Islands Financial Services Commission (<1>view licence</1>); and Binary (FX) Ltd, Lot No. F16, First Floor, Paragon Labuan, Jalan Tun Mustapha, 87000 Labuan, Malaysia, regulated by the Labuan Financial Services Authority to carry on a money-broking business (<2>view licence</2>)."
-                            components={[
-                                <StaticAsset
-                                    key={0}
-                                    target="_blank"
-                                    href="https://www.vfsc.vu/financial-dealers-licensee-lists/"
-                                    rel="noopener noreferrer"
-                                />,
-                                <StaticAsset
-                                    key={1}
-                                    target="_blank"
-                                    href="/BVI_license.pdf"
-                                    rel="noopener noreferrer"
-                                />,
-                                <StaticAsset
-                                    key={2}
-                                    target="_blank"
-                                    href="/Labuan-license.pdf"
-                                    rel="noopener noreferrer"
-                                />,
-                            ]}
-                        />
-                    </StyledText>
-                    <StyledText margin='1rem 0 0 0'>
-                        {localize(
-                            "This website's services are not made available in certain countries including the USA, Canada, Hong Kong, and Japan, or to persons below 18.",
-                        )}
-                    </StyledText>
-                </Row>
-                <Row mt="2.4rem" mb="0.8rem" flex>
-                    <Warning />
-                    <Risk>{localize('Risk warning')}</Risk>
-                </Row>
-                <Row>
-                    <StyledText>
-                        <Localize
-                            translate_text="The financial products offered via this website include digitals, contracts for difference (CFDs) and other complex derivatives and financial products. Secure and responsible trading options may not be suitable for everyone. Trading CFDs carries a high level of risk since leverage can work both to your advantage and disadvantage. As a result, the products offered on this website may not be suitable for all investors because of the risk of losing all of your invested capital. You should never invest money that you cannot afford to lose, and never trade with borrowed money. Before trading in the complex financial products offered, please be sure to understand the risks involved and learn about <0>Secure and responsible trading.</0>"
-                            components={[
-                                <BoldLink key={0} target="_blank" to="/responsible-trading/" />,
-                            ]}
-                        />
-                    </StyledText>
-                </Row>
-            </StyledContainer>
-        </Disclaimer>
-        <BlackNav>
-            <StyledContainer justify="flex-start">
-                <StyledText>
-                    <Copyright width="1.6rem" />
-                    {new Date().getUTCFullYear()} {localize('Deriv | All rights reserved')}
-                </StyledText>
-            </StyledContainer>
-        </BlackNav>
-    </StyledFooter>
+
+const mobile_accordion_header_about = Object.assign({}, mobile_accordion_header)
+
+const SocialWrapperComponent = ({ is_career_page }) => {
+    const alt_string = (is_career_page ? 'career' : '') + ' icon link'
+    const accounts = [
+        {
+            link: is_career_page
+                ? 'https://www.facebook.com/derivcareers'
+                : 'https://www.facebook.com/derivdotcom/',
+            image: Facebook,
+            image_alt: `facebook ${alt_string}`,
+        },
+        {
+            link: is_career_page
+                ? 'https://www.instagram.com/derivcareers/'
+                : 'https://www.instagram.com/deriv_official/',
+            image: Instagram,
+            image_alt: `instagram ${alt_string}`,
+        },
+        {
+            link: 'https://www.linkedin.com/company/derivdotcom/',
+            image: Linkedin,
+            image_alt: `linkedin ${alt_string}`,
+        },
+    ]
+
+    const twitter = {
+        link: 'https://twitter.com/derivdotcom/',
+        image: Twitter,
+        image_alt: `twitter ${alt_string}`,
+    }
+
+    if (!is_career_page) {
+        accounts.splice(1, 0, twitter)
+    }
+
+    return <SocialMediaComponent social_accounts={accounts} />
+}
+
+SocialWrapperComponent.propTypes = {
+    is_career_page: PropTypes.bool,
+}
+
+const SocialMediaComponent = ({ social_accounts }) => (
+    <SocialWrapper>
+        {social_accounts.map((account, index) => (
+            <LocalizedLink
+                key={index}
+                external="true"
+                to={account.link}
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <img src={account.image} alt={account.image_alt} width="41" height="41" />
+            </LocalizedLink>
+        ))}
+    </SocialWrapper>
 )
+
+SocialMediaComponent.propTypes = {
+    social_accounts: PropTypes.array,
+}
+
+const query = graphql`
+    query {
+        iom: file(relativePath: { eq: "isle-of-man-coat-of-arms.png" }) {
+            ...fadeIn
+        }
+    }
+`
+
+const Footer = ({ type, is_ppc, is_ppc_redirect }) => {
+    const image_query = useStaticQuery(query)
+    const { show_cookie_banner } = React.useContext(LocationContext)
+
+    mobile_accordion_header_about.borderTop = 'none'
+    const current_year = new Date().getFullYear()
+
+    return (
+        <StyledFooter has_banner_cookie={show_cookie_banner}>
+            <Container>
+                <StyledGrid>
+                    <DerivLogoWrapper>
+                        <StyledLogo src={Logo} alt="logo" width="147" height="25" />
+                        <Show.Eu>
+                            <Show.Desktop>
+                                <SocialWrapperComponent is_career_page={type === 'careers'} />
+                            </Show.Desktop>
+                        </Show.Eu>
+                    </DerivLogoWrapper>
+                    <LinksWrapper>
+                        <Show.Desktop>
+                            <Flex jc="space-between">
+                                <LinksCol>
+                                    <LinkWrapper>
+                                        <Title>{localize('ABOUT')}</Title>
+                                    </LinkWrapper>
+                                    <LinkWrapper first_child="true">
+                                        <Link to="/about#story">{localize('Our story')}</Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/about#leadership">
+                                            {localize('Our leadership')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/why-choose-us/">
+                                            {localize('Why choose us?')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/partners/">
+                                            {localize('Partnership programmes')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/contact_us/">{localize('Contact us')}</Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/careers/">{localize('Careers')}</Link>
+                                    </LinkWrapper>
+                                </LinksCol>
+                                <LinksCol>
+                                    <LinkWrapper>
+                                        <Title>{localize('TRADE')}</Title>
+                                    </LinkWrapper>
+                                    <LinkWrapper first_child="true">
+                                        <Link to="/dtrader/">{localize('DTrader')}</Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/dbot/">{localize('DBot')}</Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to={is_ppc_redirect ? '/landing/dmt5/' : '/dmt5/'}>
+                                            {localize('DMT5')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link
+                                            to="trading"
+                                            is_smarttrader_link
+                                            external="true"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {localize('SmartTrader')}
+                                        </Link>
+                                    </LinkWrapper>
+                                </LinksCol>
+                                {!is_ppc && (
+                                    <LinksCol>
+                                        <LinkWrapper>
+                                            <Title>{localize('TRADE TYPES')}</Title>
+                                        </LinkWrapper>
+                                        <LinkWrapper first_child="true">
+                                            <Link to="/trade-types/margin/">
+                                                {localize('Margin trading')}
+                                            </Link>
+                                        </LinkWrapper>
+                                        <Show.NonEU>
+                                            <LinkWrapper>
+                                                <Link to="/trade-types/options/">
+                                                    {localize('Options')}
+                                                </Link>
+                                            </LinkWrapper>
+                                        </Show.NonEU>
+                                        <LinkWrapper>
+                                            <Link to="/trade-types/multiplier/">
+                                                {localize('Multipliers')}
+                                            </Link>
+                                        </LinkWrapper>
+                                    </LinksCol>
+                                )}
+                                <LinksCol>
+                                    <LinkWrapper>
+                                        <Title>{localize('MARKETS')}</Title>
+                                    </LinkWrapper>
+                                    <LinkWrapper first_child="true">
+                                        <Link to="/markets#forex">{localize('Forex')}</Link>
+                                    </LinkWrapper>
+                                    {!is_ppc && (
+                                        <LinkWrapper>
+                                            <Link to="/markets#synthetic">
+                                                {localize('Synthetic indices')}
+                                            </Link>
+                                        </LinkWrapper>
+                                    )}
+                                    <LinkWrapper>
+                                        <Link to="/markets#stock">{localize('Stock indices')}</Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/markets#commodities">
+                                            {localize('Commodities')}
+                                        </Link>
+                                    </LinkWrapper>
+                                </LinksCol>
+                                <LinksCol>
+                                    <LinkWrapper>
+                                        <Title>{localize('LEGAL')}</Title>
+                                    </LinkWrapper>
+                                    <LinkWrapper first_child="true">
+                                        <Link to="/regulatory">
+                                            {localize('Regulatory information')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/terms-and-conditions">
+                                            {localize('Terms and conditions')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/responsible">
+                                            {localize('Secure and responsible trading')}
+                                        </Link>
+                                    </LinkWrapper>
+                                </LinksCol>
+                                <LinksCol>
+                                    <LinkWrapper>
+                                        <Title>{localize('PARTNER')}</Title>
+                                    </LinkWrapper>
+                                    <LinkWrapper first_child="true">
+                                        <Link to="/partners/affiliate-ib/">
+                                            {localize('Affiliates and IBs')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/partners/payment-agent/">
+                                            {localize('Payment agents')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link
+                                            to=""
+                                            is_deriv_developer_link
+                                            target="_blank"
+                                            external="true"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {localize('API')}
+                                        </Link>
+                                    </LinkWrapper>
+                                </LinksCol>
+                                <LinksCol>
+                                    <LinkWrapper>
+                                        <Title>{localize('RESOURCES')}</Title>
+                                    </LinkWrapper>
+                                    <LinkWrapper first_child="true">
+                                        <Link to="/help-centre/">{localize('Help centre')}</Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link
+                                            to=""
+                                            is_community_link
+                                            external="true"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {localize('Community')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/trader-tools/">
+                                            {localize('Traders’ tools')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link to="/payment-methods/">
+                                            {localize('Payment methods')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link
+                                            to={deriv_status_page_url}
+                                            target="_blank"
+                                            external="true"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {localize('Status page')}
+                                        </Link>
+                                    </LinkWrapper>
+                                    <LinkWrapper>
+                                        <Link
+                                            to=""
+                                            is_blog_link
+                                            external="true"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {localize('Blog')}
+                                        </Link>
+                                    </LinkWrapper>
+                                </LinksCol>
+                            </Flex>
+                        </Show.Desktop>
+                    </LinksWrapper>
+                    <Disclaimer>
+                        <Show.NonEU>
+                            <DisclaimerParagraph>
+                                <Localize
+                                    translate_text="In the EU, financial products are offered by Deriv Investments (Europe) Limited, W Business Centre, Level 3, Triq Dun Karm, Birkirkara BKR 9033, Malta, licensed as a Category 3 Investment Services provider by the Malta Financial Services Authority (<0>licence no. IS/70156</0>)."
+                                    components={[
+                                        <StaticAsset
+                                            key={0}
+                                            target="_blank"
+                                            href="/regulatory/Deriv_Investments_(Europe)_Limited.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                    ]}
+                                />
+                            </DisclaimerParagraph>
+                            <DisclaimerParagraph>
+                                <Localize
+                                    translate_text="Outside the EU, financial products are offered by the following companies: Deriv (FX) Ltd, F16, Level 1, Paragon Labuan, Jalan Tun Mustapha, 87000 Labuan, Malaysia, licensed by Labuan Financial Services Authority (<0>licence no. MB/18/0024</0>); Deriv (BVI) Ltd, Kingston Chambers, P.O. Box 173, Road Town, Tortola, British Virgin Islands, licensed by the British Virgin Islands Financial Services Commission (<1>licence no. SIBA/L/18/1114</1>); Deriv (V) Ltd (<2>view licence</2>), 1276, Kumul Highway, Port Vila, Vanuatu, licensed and regulated by the Vanuatu Financial Services Commission; Champion Group Ltd (<3>view licence</3>), 1276, Kumul Highway, Port Vila, Vanuatu, Republic of Vanuatu, licensed by the Vanuatu Financial Services Commission; and Deriv (SVG) LLC, Hinds Buildings, Kingstown, St. Vincent and the Grenadines."
+                                    components={[
+                                        <StaticAsset
+                                            key={0}
+                                            target="_blank"
+                                            href="/regulatory/Deriv_(FX)_Ltd.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                        <StaticAsset
+                                            key={1}
+                                            target="_blank"
+                                            href="/regulatory/Deriv_(BVI)_Ltd.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                        <StaticAsset
+                                            key={2}
+                                            target="_blank"
+                                            href="/regulatory/Deriv_(V)_Ltd.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                        <StaticAsset
+                                            key={3}
+                                            target="_blank"
+                                            href="/regulatory/Champion_Group_Ltd.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                    ]}
+                                />
+                            </DisclaimerParagraph>
+                        </Show.NonEU>
+                        <Show.Eu>
+                            <DisclaimerParagraph>
+                                <Localize
+                                    translate_text="Deriv Investments (Europe) Limited, W Business Centre, Level 3, Triq Dun Karm, Birkirkara BKR 9033, Malta, is licensed in Malta (<0>licence no. IS/70156</0>) and regulated by the Malta Financial Services Authority under the Investments Services Act to provide investment services in the European Union. It is also authorised and subject to limited regulation by the Financial Conduct Authority in the UK. Details about the extent of our authorisation and regulation by the Financial Conduct Authority are available from us on request."
+                                    components={[
+                                        <StaticAsset
+                                            key={0}
+                                            target="_blank"
+                                            href="/regulatory/Deriv_Investments_(Europe)_Limited.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                    ]}
+                                />
+                            </DisclaimerParagraph>
+                            <DisclaimerParagraph>
+                                <Localize
+                                    translate_text="Deriv (MX) Ltd, Millennium House, Level 1, Victoria Road, Douglas IM2 4RW, Isle of Man, licensed and regulated by the Gambling Supervision Commission in the Isle of Man (<0>view licence</0>) and by the UK Gambling Commission for clients in the UK (<1>account no. 39172</1>)."
+                                    components={[
+                                        <StaticAsset
+                                            key={0}
+                                            target="_blank"
+                                            href="/regulatory/Deriv_(MX)_Ltd.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                        <StaticAssetLink
+                                            external="true"
+                                            key={1}
+                                            target="_blank"
+                                            to="https://beta.gamblingcommission.gov.uk/public-register/business/detail/39172"
+                                            rel="noopener noreferrer"
+                                        />,
+                                    ]}
+                                />
+                            </DisclaimerParagraph>
+                            <DisclaimerParagraph>
+                                <Localize
+                                    translate_text="Deriv (Europe) Limited, W Business Centre, Level 3, Triq Dun Karm, Birkirkara BKR 9033, Malta, is licensed and regulated for synthetic indices by the Malta Gaming Authority (<0>licence no. MGA/B2C/102/2000</0>), by the Gambling Commission for clients in Great Britain (<1>account no. 39495</1>), and by the Revenue Commissioners for clients in Ireland (licence no. 1010285)."
+                                    components={[
+                                        <StaticAsset
+                                            key={0}
+                                            target="_blank"
+                                            href="/regulatory/Deriv_(Europe)_Limited.pdf"
+                                            rel="noopener noreferrer"
+                                        />,
+                                        <StaticAssetLink
+                                            external="true"
+                                            key={1}
+                                            target="_blank"
+                                            to="https://beta.gamblingcommission.gov.uk/public-register/business/detail/39495"
+                                            rel="noopener noreferrer"
+                                        />,
+                                    ]}
+                                />
+                            </DisclaimerParagraph>
+                        </Show.Eu>
+                        <DisclaimerParagraph>
+                            {localize(
+                                "This website's services are not made available in certain countries, including the USA, Canada, and Hong Kong, or to persons below 18.",
+                            )}
+                        </DisclaimerParagraph>
+                        <RiskWarning>
+                            <Show.Desktop>
+                                <Show.NonEU>
+                                    <DisclaimerParagraph no_margin>
+                                        <Localize translate_text="CFDs are considered complex derivatives and may not be suitable for retail clients. CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money. The products mentioned here may be affected by changes in currency exchange rates. If you invest in these products, you may lose some or all of your investment, and the value of your investment may fluctuate. You should never invest money that you cannot afford to lose and never trade with borrowed money." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize
+                                            translate_text="Before trading in the complex financial products offered, please be sure to understand the risks involved and learn about <0>Secure and responsible trading</0>."
+                                            components={[
+                                                <BoldLink
+                                                    key={0}
+                                                    target="_blank"
+                                                    to="/responsible/"
+                                                />,
+                                            ]}
+                                        />
+                                    </DisclaimerParagraph>
+                                </Show.NonEU>
+                                <Show.Eu>
+                                    <DisclaimerParagraph no_margin>
+                                        <Localize translate_text="CFDs are considered complex derivatives and may not be suitable for retail clients." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize translate_text="CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 68% of retail investor accounts lose money when trading CFDs with this provider. You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize translate_text="The products mentioned here may be affected by changes in currency exchange rates. If you invest in these products, you may lose some or all of your investment and the value of your investment may fluctuate. You should never invest money that you cannot afford to lose and never trade with borrowed money." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize
+                                            translate_text="Gambling can be addictive, so please play responsibly. Visit <0>Secure and responsible trading</0> and <1>begambleaware.org</1> for more information."
+                                            components={[
+                                                <BoldLink
+                                                    key={0}
+                                                    target="_blank"
+                                                    to="/responsible/"
+                                                />,
+                                                <BoldLink
+                                                    external="true"
+                                                    key={1}
+                                                    target="_blank"
+                                                    to="https://www.begambleaware.org/"
+                                                />,
+                                            ]}
+                                        />
+                                    </DisclaimerParagraph>
+                                </Show.Eu>
+                            </Show.Desktop>
+                            <Show.Mobile>
+                                <Show.Eu>
+                                    <DisclaimerParagraph no_margin>
+                                        <Localize translate_text="CFDs are considered complex derivatives and may not be suitable for retail clients." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize translate_text="CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 68% of retail investor accounts lose money when trading CFDs with this provider. You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize translate_text="The products mentioned here may be affected by changes in currency exchange rates. If you invest in these products, you may lose some or all of your investment and the value of your investment may fluctuate. You should never invest money that you cannot afford to lose and never trade with borrowed money." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize
+                                            translate_text="Gambling can be addictive, so please play responsibly. Visit <0>Secure and responsible trading</0> and <1>begambleaware.org</1> if you need further information."
+                                            components={[
+                                                <BoldLink
+                                                    key={0}
+                                                    target="_blank"
+                                                    to="/responsible/"
+                                                />,
+                                                <BoldLink
+                                                    external="true"
+                                                    key={1}
+                                                    target="_blank"
+                                                    to="https://www.begambleaware.org/"
+                                                />,
+                                            ]}
+                                        />
+                                    </DisclaimerParagraph>
+                                </Show.Eu>
+                                <Show.NonEU>
+                                    <DisclaimerParagraph no_margin>
+                                        <Localize translate_text="CFDs are considered complex derivatives and may not be suitable for retail clients. CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money. The products mentioned here may be affected by changes in currency exchange rates. If you invest in these products, you may lose some or all of your investment, and the value of your investment may fluctuate. You should never invest money that you cannot afford to lose and never trade with borrowed money." />
+                                    </DisclaimerParagraph>
+                                    <DisclaimerParagraph>
+                                        <Localize
+                                            translate_text="Before trading in the complex financial products offered, please be sure to understand the risks involved and learn about <0>Secure and responsible trading</0>."
+                                            components={[
+                                                <BoldLink
+                                                    key={0}
+                                                    target="_blank"
+                                                    to="/responsible/"
+                                                />,
+                                            ]}
+                                        />
+                                    </DisclaimerParagraph>
+                                </Show.NonEU>
+                            </Show.Mobile>
+                        </RiskWarning>
+                    </Disclaimer>
+                    <Copyright>
+                        <img src={CopyrightIc} alt="copyright ic" width="16" height="16" />
+                        <Text ml="0.4rem">
+                            <Localize
+                                translate_text="{{current_year}} Deriv | All rights reserved"
+                                values={{ current_year }}
+                            />
+                        </Text>
+                    </Copyright>
+                    <Show.NonEU>
+                        <SocialWrapperComponent is_career_page={type === 'careers'} />
+                    </Show.NonEU>
+                    <Show.Eu>
+                        <Show.Mobile>
+                            <SocialWrapperComponent is_career_page={type === 'careers'} />
+                        </Show.Mobile>
+                    </Show.Eu>
+                    <Show.Eu>
+                        <Show.Desktop>
+                            <EuLogoWrapper mt="1rem" ai="center">
+                                <LocalizedLink
+                                    external="true"
+                                    to="https://www.gamstop.co.uk"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <StyledGamstop src={Gamstop} alt="gamstop desktop" />
+                                </LocalizedLink>
+
+                                <LocalizedLink
+                                    external="true"
+                                    to="https://www.gov.im/categories/business-and-industries/gambling-and-e-gaming/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <StyledCoatArms>
+                                        <QueryImage
+                                            data={image_query.iom}
+                                            alt={'IOM'}
+                                            width="6.4rem"
+                                            height="auto"
+                                        />
+                                    </StyledCoatArms>
+                                </LocalizedLink>
+                                <LocalizedLink
+                                    external="true"
+                                    to={mga_link_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <StyledMgaLogo src={MgaLogo} alt="mga logo desktop" />
+                                </LocalizedLink>
+                                <img src={Over18} alt="over18 desktop" />
+                            </EuLogoWrapper>
+                        </Show.Desktop>
+                        <Show.Mobile>
+                            <EuLogoWrapper mt="1rem" ai="center">
+                                <LocalizedLink
+                                    external="trues"
+                                    to="https://www.gov.im/categories/business-and-industries/gambling-and-e-gaming/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <StyledCoatArms>
+                                        <QueryImage
+                                            data={image_query.iom}
+                                            alt={'IOM'}
+                                            width="6.4rem"
+                                            height="auto"
+                                        />
+                                    </StyledCoatArms>
+                                </LocalizedLink>
+                                <Flex fd="column" width="auto">
+                                    <LocalizedLink
+                                        external="true"
+                                        to={mga_link_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <StyledMgaLogo src={MgaLogo} alt="mga logo" />
+                                    </LocalizedLink>
+                                    <LocalizedLink
+                                        external="true"
+                                        to="https://www.gamstop.co.uk"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <StyledGamstop src={Gamstop} alt="gamstop mobile" />
+                                    </LocalizedLink>
+                                </Flex>
+                                <img src={Over18} alt="over18 mobile" />
+                            </EuLogoWrapper>
+                        </Show.Mobile>
+                    </Show.Eu>
+                </StyledGrid>
+            </Container>
+        </StyledFooter>
+    )
+}
+
+Footer.propTypes = {
+    is_ppc: PropTypes.bool,
+    is_ppc_redirect: PropTypes.bool,
+    type: PropTypes.string,
+}
 
 export default Footer
