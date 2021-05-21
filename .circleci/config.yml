@@ -165,6 +165,7 @@ commands:
             echo $CA_CRT | base64 --decode > ca.crt
             ./release.sh deriv-com ${CIRCLE_SHA1}
 
+
 jobs:
   test:
     docker:
