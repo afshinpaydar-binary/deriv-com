@@ -159,8 +159,7 @@ commands:
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
-            ls -lh
-            #./release.sh deriv-com ${CIRCLE_SHA1}
+            ./release.sh deriv-com ${CIRCLE_SHA1}
 
 jobs:
   test:
