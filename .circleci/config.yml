@@ -139,10 +139,8 @@ commands:
       - run:
           name: Deploying to k8s cluster for service << parameters.k8s_svc_name >>
           command: |
-            curl -sS https://raw.githubusercontent.com/afshinpaydar/kubedeploy/main/bin/kubectl-deploy -o /usr/local/bin/kubectl-deploy
             echo $CA_CRT | base64 --decode > ca.crt
-            kubectl deploy -s ${KUBE_SERVER} -c ca.crt -T $SERVICEACCOUNT_TOKEN  -t 65 -n deriv-com -l ${CIRCLE_TAG} -d phantasm stg-deriv-com deriv-com
-            #kubectl --server=${KUBE_SERVER} --certificate-authority=ca.crt --token=$SERVICEACCOUNT_TOKEN set image deployment/<< parameters.k8s_svc_name >> << parameters.k8s_svc_name >>=${DOCKHUB_ORGANISATION}/deriv-com:${CIRCLE_TAG}
+            kubectl --server=${KUBE_SERVER} --certificate-authority=ca.crt --token=$SERVICEACCOUNT_TOKEN set image deployment/<< parameters.k8s_svc_name >> << parameters.k8s_svc_name >>=${DOCKHUB_ORGANISATION}/deriv-com:${CIRCLE_TAG}
 
   k8s_deploy_staging:
     description: "Deploy to k8s cluster"
@@ -161,7 +159,8 @@ commands:
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
-            ./release.sh deriv-com ${CIRCLE_SHA1}
+            ls -lh
+            #./release.sh deriv-com ${CIRCLE_SHA1}
 
 jobs:
   test:
