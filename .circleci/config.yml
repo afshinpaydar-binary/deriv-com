@@ -133,16 +133,13 @@ commands:
     parameters:
       k8s_svc_name:
         type: string
-        default: "staging-deriv-com"
+        default: "deriv-com-production"
     steps:
       - k8s/install-kubectl
       - run:
           name: Deploying to k8s cluster for service << parameters.k8s_svc_name >>
           command: |
-            echo $CA_CRT | base64 --decode > ca.crt
-            kubectl --server=${KUBE_SERVER} --certificate-authority=ca.crt --token=$SERVICEACCOUNT_TOKEN set image deployment/<< parameters.k8s_svc_name >> << parameters.k8s_svc_name >>=${DOCKHUB_ORGANISATION}/deriv-com:${CIRCLE_TAG}
-
-            export NAMESPACE=deriv-com-production
+            export NAMESPACE=<< parameters.k8s_svc_name >>
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
@@ -153,16 +150,13 @@ commands:
     parameters:
       k8s_svc_name:
         type: string
-        default: "staging-deriv-com"
+        default: "deriv-com-staging"
     steps:
       - k8s/install-kubectl
       - run:
           name: Deploying to k8s cluster for service << parameters.k8s_svc_name >>
           command: |
-            echo $CA_CRT | base64 --decode > ca.crt
-            kubectl --server=${KUBE_SERVER} --certificate-authority=ca.crt --token=$SERVICEACCOUNT_TOKEN set image deployment/<< parameters.k8s_svc_name >> << parameters.k8s_svc_name >>=${DOCKHUB_ORGANISATION}/deriv-com:${CIRCLE_SHA1}
-
-            export NAMESPACE=deriv-com-staging
+            export NAMESPACE=<< parameters.k8s_svc_name >>
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
@@ -219,7 +213,7 @@ jobs:
           docker_image_tag: latest
       - docker_push
       - k8s_deploy:
-          k8s_svc_name: "production-deriv-com"
+          k8s_svc_name: "deriv-com-production"
       - notify_slack
 
 workflows:
