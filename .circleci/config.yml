@@ -161,7 +161,7 @@ jobs:
       - build
       - deploy:
           target_branch: "staging"
-      - docker_build_staging
+      - docker_build
       - docker_push
       - k8s_deploy
       - notify_slack
