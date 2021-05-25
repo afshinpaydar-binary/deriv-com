@@ -128,6 +128,7 @@ commands:
       - run:
           name: Deploying to k8s cluster for service << parameters.k8s_namespace >>
           command: |
+            echo $NAMESPACE
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
@@ -201,7 +202,6 @@ workflows:
   release_staging:
     jobs:
       - release_staging:
-          context: binary-frontend-artifact-upload
           filters:
             branches:
               only: /^master/
@@ -209,7 +209,6 @@ workflows:
   release_production:
     jobs:
       - release_production:
-          context: binary-frontend-artifact-upload
           filters:
             branches:
               ignore: /.*/
