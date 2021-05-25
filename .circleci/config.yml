@@ -76,7 +76,7 @@ commands:
             git config user.name "ci-build"
       - add_ssh_keys:
           fingerprints:
-            - "50:a5:36:df:0d:e3:73:d3:d1:a5:bd:39:36:23:44:40"
+            - "01:67:4a:6d:26:9c:70:c4:1a:60:91:88:d9:dd:f0:83"
       - run:
           name: Deploy docs to gh-pages branch
           command: /home/circleci/.npm-packages/bin/gh-pages -d public --branch << parameters.target_branch >> --message '[skip ci]'
@@ -106,7 +106,6 @@ commands:
           name: Building docker image
           command: |
             docker build -t ${DOCKHUB_ORGANISATION}/deriv-com:<< parameters.docker_image_tag >> -t ${DOCKHUB_ORGANISATION}/deriv-com:<< parameters.docker_latest_image_tag >> .
-
   docker_push:
     description: "Push image to docker hub"
     steps:
@@ -115,7 +114,6 @@ commands:
           command: |
             echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
             docker push ${DOCKHUB_ORGANISATION}/deriv-com
-
   k8s_deploy:
     description: "Deploy to k8s cluster"
     parameters:
@@ -134,7 +132,6 @@ commands:
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
             ./release.sh deriv-com << parameters.k8s_version >>
-
 jobs:
   test:
     docker:
@@ -164,7 +161,7 @@ jobs:
       - build
       - deploy:
           target_branch: "staging"
-      - docker_build
+      - docker_build_staging
       - docker_push
       - k8s_deploy
       - notify_slack
@@ -189,8 +186,8 @@ jobs:
           docker_image_tag: ${CIRCLE_TAG}
       - docker_push
       - k8s_deploy:
-          k8s_version: ${CIRCLE_TAG}
           k8s_namespace: "deriv-com-production"
+          k8s_version: ${CIRCLE_TAG}
       - notify_slack
 
 workflows:
@@ -204,7 +201,7 @@ workflows:
   release_staging:
     jobs:
       - release_staging:
-          #context: binary-frontend-artifact-upload
+          context: binary-frontend-artifact-upload
           filters:
             branches:
               only: /^master/
@@ -212,7 +209,7 @@ workflows:
   release_production:
     jobs:
       - release_production:
-          #context: binary-frontend-artifact-upload
+          context: binary-frontend-artifact-upload
           filters:
             branches:
               ignore: /.*/
