@@ -131,36 +131,22 @@ commands:
   k8s_deploy:
     description: "Deploy to k8s cluster"
     parameters:
-      k8s_svc_name:
-        type: string
-        default: "deriv-com-production"
-    steps:
-      - k8s/install-kubectl
-      - run:
-          name: Deploying to k8s cluster for service << parameters.k8s_svc_name >>
-          command: |
-            export NAMESPACE=<< parameters.k8s_svc_name >>
-            git clone https://github.com/binary-com/devops-ci-scripts
-            cd devops-ci-scripts/k8s-build_tools
-            echo $CA_CRT | base64 --decode > ca.crt
-            ./release.sh deriv-com ${CIRCLE_TAG}
-
-  k8s_deploy_staging:
-    description: "Deploy to k8s cluster"
-    parameters:
-      k8s_svc_name:
+      k8s_namespace:
         type: string
         default: "deriv-com-staging"
+      k8s_version:
+        type: string
+        default: ${CIRCLE_SHA1}
     steps:
       - k8s/install-kubectl
       - run:
-          name: Deploying to k8s cluster for service << parameters.k8s_svc_name >>
+          name: Deploying to k8s cluster for service << parameters.k8s_namespace >>
           command: |
-            export NAMESPACE=<< parameters.k8s_svc_name >>
+            export NAMESPACE=<< parameters.k8s_namespace >>
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
-            ./release.sh deriv-com ${CIRCLE_SHA1}
+            ./release.sh deriv-com << parameters.k8s_version >>
 
 jobs:
   test:
@@ -192,7 +178,7 @@ jobs:
           target_branch: "staging"
       - docker_build_staging
       - docker_push
-      - k8s_deploy_staging
+      - k8s_deploy
       - notify_slack
 
   release_production:
@@ -213,7 +199,8 @@ jobs:
           docker_image_tag: latest
       - docker_push
       - k8s_deploy:
-          k8s_svc_name: "deriv-com-production"
+          k8s_namespace: "deriv-com-production"
+          k8s_version: ${CIRCLE_TAG}
       - notify_slack
 
 workflows:
