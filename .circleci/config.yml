@@ -137,7 +137,7 @@ commands:
     steps:
       - k8s/install-kubectl
       - run:
-          name: Deploying to k8s cluster for service << parameters.k8s_namespace >>
+          name: Deploying to k8s cluster for service ${NAMESPACE}
           command: |
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
