@@ -189,8 +189,8 @@ jobs:
           docker_image_tag: ${CIRCLE_TAG}
       - docker_push
       - k8s_deploy:
-          k8s_version: ${CIRCLE_TAG}
           k8s_namespace: "deriv-com-production"
+          k8s_version: ${CIRCLE_TAG}
       - notify_slack
 
 workflows:
@@ -204,7 +204,6 @@ workflows:
   release_staging:
     jobs:
       - release_staging:
-          #context: binary-frontend-artifact-upload
           filters:
             branches:
               only: /^master/
@@ -212,7 +211,6 @@ workflows:
   release_production:
     jobs:
       - release_production:
-          #context: binary-frontend-artifact-upload
           filters:
             branches:
               ignore: /.*/
