@@ -93,31 +93,19 @@ commands:
   docker_build:
     description: "Build Docker image"
     parameters:
-      docker_image_tag:
+      docker_latest_image_tag:
         type: string
         default: "latest-staging"
+      docker_image_tag:
+        type: string
+        default: ${CIRCLE_SHA1}
     steps:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
           name: Building docker image
           command: |
-            docker build -t ${DOCKHUB_ORGANISATION}/deriv-com:${CIRCLE_TAG} -t ${DOCKHUB_ORGANISATION}/deriv-com:<< parameters.docker_image_tag >> .
-
-
-  docker_build_staging:
-    description: "Build Docker image"
-    parameters:
-      docker_image_tag:
-        type: string
-        default: "latest-staging"
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run:
-          name: Building docker image
-          command: |
-            docker build -t ${DOCKHUB_ORGANISATION}/deriv-com:${CIRCLE_SHA1} -t ${DOCKHUB_ORGANISATION}/deriv-com:<< parameters.docker_image_tag >> .
+            docker build -t ${DOCKHUB_ORGANISATION}/deriv-com:<< parameters.docker_image_tag >> -t ${DOCKHUB_ORGANISATION}/deriv-com:<< parameters.docker_latest_image_tag >> .
 
   docker_push:
     description: "Push image to docker hub"
@@ -137,7 +125,7 @@ commands:
     steps:
       - k8s/install-kubectl
       - run:
-          name: Deploying to k8s cluster for service ${NAMESPACE}
+          name: Deploying to k8s cluster for project $NAMESPACE
           command: |
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
@@ -173,7 +161,7 @@ jobs:
       - build
       - deploy:
           target_branch: "staging"
-      - docker_build_staging
+      - docker_build
       - docker_push
       - k8s_deploy
       - notify_slack
@@ -194,7 +182,8 @@ jobs:
       - deploy:
           target_branch: "production"
       - docker_build:
-          docker_image_tag: latest
+          docker_latest_image_tag: latest
+          docker_image_tag: ${CIRCLE_TAG}
       - docker_push
       - k8s_deploy:
           k8s_version: ${CIRCLE_TAG}
