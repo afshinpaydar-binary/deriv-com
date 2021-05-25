@@ -131,9 +131,6 @@ commands:
   k8s_deploy:
     description: "Deploy to k8s cluster"
     parameters:
-      k8s_namespace:
-        type: string
-        default: "deriv-com-staging"
       k8s_version:
         type: string
         default: ${CIRCLE_SHA1}
@@ -142,7 +139,6 @@ commands:
       - run:
           name: Deploying to k8s cluster for service << parameters.k8s_namespace >>
           command: |
-            export NAMESPACE=<< parameters.k8s_namespace >>
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
             echo $CA_CRT | base64 --decode > ca.crt
@@ -169,6 +165,7 @@ jobs:
           - GATSBY_CPU_COUNT=2
           - GATSBY_MAP_API_KEY=${GATSBY_MAP_API_KEY}
           - GATSBY_ENV=staging
+          - NAMESPACE="deriv-com-staging"
     steps:
       - git_checkout_from_cache
       - npm_install_from_cache
@@ -188,6 +185,7 @@ jobs:
           - GATSBY_CPU_COUNT=2
           - GATSBY_MAP_API_KEY=${GATSBY_MAP_API_KEY}
           - GATSBY_ENV=production
+          - NAMESPACE="deriv-com-production"
     steps:
       - git_checkout_from_cache
       - npm_install_from_cache
@@ -199,7 +197,6 @@ jobs:
           docker_image_tag: latest
       - docker_push
       - k8s_deploy:
-          k8s_namespace: "deriv-com-production"
           k8s_version: ${CIRCLE_TAG}
       - notify_slack
 
