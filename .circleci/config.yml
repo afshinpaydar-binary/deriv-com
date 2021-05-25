@@ -122,10 +122,13 @@ commands:
       k8s_version:
         type: string
         default: ${CIRCLE_SHA1}
+      k8s_namespace:
+        type: string
+        default: "deriv-com-staging"
     steps:
       - k8s/install-kubectl
       - run:
-          name: Deploying to k8s cluster for project $NAMESPACE
+          name: Deploying to k8s cluster for service << parameters.k8s_namespace >>
           command: |
             git clone https://github.com/binary-com/devops-ci-scripts
             cd devops-ci-scripts/k8s-build_tools
@@ -187,6 +190,7 @@ jobs:
       - docker_push
       - k8s_deploy:
           k8s_version: ${CIRCLE_TAG}
+          k8s_namespace: "deriv-com-production"
       - notify_slack
 
 workflows:
