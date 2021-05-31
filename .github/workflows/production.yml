@@ -16,7 +16,6 @@ env:
 
 jobs:
   release-production:
-    if: github.base_ref == 'refs/heads/master'
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
