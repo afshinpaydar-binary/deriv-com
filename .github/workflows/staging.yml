@@ -3,10 +3,12 @@ name: Release Staging
 on:
   create:
     tags:
-      - staging.*
+      - staging_.*
   push:
+    branches:
+      - master
     tags:
-      - staging.*
+      - staging_.*
     paths-ignore:
       - '**.md' 
 

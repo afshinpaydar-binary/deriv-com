@@ -3,10 +3,12 @@ name: Release Production
 on:
   create:
     tags:
-      - production.*
+      - production_.*
   push:
+    branches:
+      - master
     tags:
-      - production.*
+      - production_.*
     paths-ignore:
       - '**.md' 
 
