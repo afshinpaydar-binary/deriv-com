@@ -37,16 +37,10 @@ jobs:
       - run: npm run test
       - run: npm run build
       - uses: olegtarasov/get-tag@v2.1
-      - uses: olegtarasov/get-tag@v2.1
         id: tagName
         with:
           tagRegex: "staging_(.*)"
-
       - name: Building docker image 🐳
-        #uses: docker/build-push-action@v2
-        #with:
-        #  push: true
-        #  tags: ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging
         run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging  -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:$GIT_TAG_NAME . 
 
       - name: Pushing Image to docker hub 🐳
@@ -55,11 +49,13 @@ jobs:
           docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging
           docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:$GIT_TAG_NAME
 
-      # - name: Deploy 🚀
-      #   uses: JamesIves/github-pages-deploy-action@4.1.1
-      #   with:
-      #     branch: gh-pages
-      #     folder: build
+      - name: Deploy 🚀
+        run: |
+          export NAMESPACE="deriv-com-staging"
+          git clone https://github.com/binary-com/devops-ci-scripts
+          cd devops-ci-scripts/k8s-build_tools
+          echo $CA_CRT | base64 --decode > ca.crt
+          ./release.sh deriv-com $GIT_TAG_NAME
 
 
 
