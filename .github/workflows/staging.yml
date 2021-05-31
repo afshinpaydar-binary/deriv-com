@@ -40,7 +40,7 @@ jobs:
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
         with:
-          tagRegex: "staging-(.*)"
+          tagRegex: "staging_(.*)"
 
       - name: Building docker image 🐳
         #uses: docker/build-push-action@v2
@@ -52,7 +52,8 @@ jobs:
       - name: Pushing Image to docker hub 🐳
         run: |
           echo ${{ secrets.DOCKERHUB_TOKEN }}| docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com
+          docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging
+          docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:$GIT_TAG_NAME
 
       # - name: Deploy 🚀
       #   uses: JamesIves/github-pages-deploy-action@4.1.1
