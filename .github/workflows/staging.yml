@@ -1,12 +1,12 @@
-name: Staging Environment
+name: Release Staging
 
 on:
   create:
     tags:
-      - staging.*
+      - staging_.*
   push:
     tags:
-      - staging.*
+      - staging_.*
     paths-ignore:
       - '**.md' 
 
@@ -15,8 +15,9 @@ env:
   GATSBY_ENV: staging
 
 jobs:
-  build-and-deploy:
-#    if: github.event.base_ref == 'refs/heads/master'
+  release-staging:
+    if: github.event.base_ref == 'refs/heads/master'
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -39,24 +40,23 @@ jobs:
       - run: npm run format
       - run: npm run test
       - run: npm run build
-
-      - name: Check files
-        run: ls -lha
-      - name: Login to DockerHub 🐳
-        uses: docker/login-action@v1 
+      - uses: olegtarasov/get-tag@v2.1
+        uses: olegtarasov/get-tag@v2.1
+        id: tagName
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          tagRegex: "staging-(.*)"
 
-      - name: Build and push 🐳
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: phantasm/deriv-com:latest
-      -
-        name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+      - name: Building docker image 🐳
+        #uses: docker/build-push-action@v2
+        #with:
+        #  push: true
+        #  tags: ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging
+        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging  -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com::$GIT_TAG_NAME . 
+
+      - name: Pushing Image to docker hub 🐳
+        run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }}| docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com
 
       # - name: Deploy 🚀
       #   uses: JamesIves/github-pages-deploy-action@4.1.1
