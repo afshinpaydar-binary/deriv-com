@@ -53,7 +53,7 @@ jobs:
         run: |
           export NAMESPACE="deriv-com-staging"
           export SERVICEACCOUNT_TOKEN=${{ secrets.SERVICEACCOUNT_TOKEN }}
-          export DOCKHUB_ORGANISATION=${{ secrets.DOCKHUB_ORGANISATION }}
+          export DOCKERHUB_ORGANISATION=${{ secrets.DOCKERHUB_ORGANISATION }}
           export KUBE_SERVER=${{ secrets.KUBE_SERVER }}
           export CA=${{ secrets.CA }}
           git clone https://github.com/binary-com/devops-ci-scripts
