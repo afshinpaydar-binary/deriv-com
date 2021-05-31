@@ -5,6 +5,8 @@ on:
     branches-ignore:
       - staging.*
       - production.*
+    tags-ignore:
+      - '*.*'
     paths-ignore:
       - '**.md' 
 env:
