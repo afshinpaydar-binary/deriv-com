@@ -1,9 +1,6 @@
 name: Release Staging
 
 on:
-  create:
-    tags:
-      - 'staging.*'
   push:
     tags:
       - 'staging.*'

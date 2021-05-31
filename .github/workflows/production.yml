@@ -1,9 +1,6 @@
 name: Release Production
 
 on:
-  create:
-    tags:
-      - 'production.*'
   push:
     tags:
       - 'production.*'
