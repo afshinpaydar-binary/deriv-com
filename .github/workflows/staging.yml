@@ -52,9 +52,13 @@ jobs:
       - name: Deploy 🚀
         run: |
           export NAMESPACE="deriv-com-staging"
+          export SERVICEACCOUNT_TOKEN=${{ secrets.SERVICEACCOUNT_TOKEN }}
+          export DOCKHUB_ORGANISATION=${{ secrets.DOCKHUB_ORGANISATION }}
+          export KUBE_SERVER=${{ secrets.KUBE_SERVER }}
+          export CA=${{ secrets.CA }}
           git clone https://github.com/binary-com/devops-ci-scripts
           cd devops-ci-scripts/k8s-build_tools
-          echo $CA_CRT | base64 --decode > ca.crt
+          echo ${{ secrets.CA_CRT}} | base64 --decode > ca.crt
           ./release.sh deriv-com $GIT_TAG_NAME
 
 
