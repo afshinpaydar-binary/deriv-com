@@ -47,7 +47,7 @@ jobs:
         #with:
         #  push: true
         #  tags: ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging
-        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging  -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com::$GIT_TAG_NAME . 
+        run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging  -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:$GIT_TAG_NAME . 
 
       - name: Pushing Image to docker hub 🐳
         run: |
