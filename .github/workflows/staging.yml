@@ -3,10 +3,10 @@ name: Release Staging
 on:
   create:
     tags:
-      - staging.*
+      - 'staging.*'
   push:
     tags:
-      - staging.*
+      - 'staging.*'
     paths-ignore:
       - '**.md' 
 
