@@ -42,6 +42,7 @@ jobs:
           eslint: true
 
   release-staging:
+    needs: lint
     timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
@@ -67,8 +68,8 @@ jobs:
       - run: npm run build
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
-        # with:
-        #   tagRegex: "staging_(.*)"
+        with:
+          tagRegex: "staging_(.*)"
       - name: Building docker image 🐳
         run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging  -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:$GIT_TAG_NAME . 
 
