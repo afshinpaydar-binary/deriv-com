@@ -96,12 +96,12 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
-          fields: workflow,job,commit,repo,ref,author,took
+          fields: workflow,repo
           custom_payload: |
             {
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: '${{ job.status }}' === 'success' ? `Release succeeded for *Deriv.com* with version *$GIT_TAG_NAME*` : '${{ job.status }}' === 'failure' ? `Release failed for *Deriv.com* with version *$GIT_TAG_NAME*`
+                text: `Release for *Deriv.com* with version *$GIT_TAG_NAME*`
               }]
             }
         env:
