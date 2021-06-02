@@ -76,7 +76,7 @@ jobs:
 
       - name: Pushing Image to docker hub 🐳
         run: |
-          echo ${{ secrets.DOCKERHUB_TOKEN }}| docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          echo ${{ secrets.DOCKERHUB_PASSWORD }}| docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging
           docker push  ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:$GIT_TAG_NAME
 
@@ -92,7 +92,7 @@ jobs:
           echo ${{ secrets.CA_CRT}} | base64 --decode > ca.crt
           ./release.sh deriv-com $GIT_TAG_NAME
 
-      - name: Slack Notification
+      - name: Slack Notification 📣
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
@@ -101,9 +101,9 @@ jobs:
             {
               attachments: [{
                 color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} ${{ job.status }} in ${process.env.AS_TOOK}`,
+                text: '${{ job.status }}' === 'success' ? `Release succeeded for *Deriv.com* with version *$GIT_TAG_NAME*` : '${{ job.status }}' === 'failure' ? `Release failed for *Deriv.com* with version *$GIT_TAG_NAME*`
               }]
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-        if: always() # Pick up events even if the job fails or is canceled.
+        if: always()
