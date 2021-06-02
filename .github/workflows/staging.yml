@@ -3,7 +3,7 @@ name: Release Staging
 on:
   push:
     tags:
-      - 'staging_*'
+      - 'staging*'
     paths-ignore:
       - '**.md' 
 
@@ -70,7 +70,7 @@ jobs:
         id: tagName
         # For using same tag for staging and production we need to uncomment these two below lines:
         # with:
-        #   tagRegex: "staging_(.*)"
+        #   tagRegex: "staging(.*)"
       - name: Building docker image 🐳
         run: docker build -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:latest-staging  -t ${{ secrets.DOCKHUB_ORGANISATION }}/deriv-com:$GIT_TAG_NAME . 
 
@@ -90,7 +90,7 @@ jobs:
           git clone https://github.com/binary-com/devops-ci-scripts
           cd devops-ci-scripts/k8s-build_tools
           echo ${{ secrets.CA_CRT}} | base64 --decode > ca.crt
-          ./release.sh deriv-com-fail $GIT_TAG_NAME
+          ./release.sh deriv-com $GIT_TAG_NAME
 
       - name: Slack Notification 📣
         uses: 8398a7/action-slack@v3
