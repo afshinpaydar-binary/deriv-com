@@ -12,6 +12,17 @@ env:
   GATSBY_ENV: production
 
 jobs:
+  # check-staging-tag:
+  #   timeout-minutes: 5
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check Docker Tag 🐳
+  #     - uses: olegtarasov/get-tag@v2.1
+  #       id: tagName
+  #       with:
+  #         tagRegex: "production_(.*)"
+
+
   lint:
     timeout-minutes: 10
     runs-on: ubuntu-latest
