@@ -83,7 +83,7 @@ jobs:
       - name: Deploy 🚀
         run: |
           mkdir ~/.kube
-          echo ${{ secrets.KUBE_CONFIG_DATA }} | base64 --decode > ~/.kube/config
+          echo ${{ secrets.KUBE_CONFIG_DATA }} > ~/.kube/config
           export DOCKERHUB_ORGANISATION=${{ secrets.DOCKERHUB_ORGANISATION }}
           kubectl config set-context --current --namespace=deriv-com-staging
           git clone https://github.com/afshinpaydar-binary/devops-ci-scripts
