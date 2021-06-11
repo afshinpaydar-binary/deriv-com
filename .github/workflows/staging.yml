@@ -87,8 +87,8 @@ jobs:
           export DOCKERHUB_ORGANISATION=${{ secrets.DOCKERHUB_ORGANISATION }}
           kubectl config set-context --current --namespace=deriv-com-staging
           git clone https://github.com/afshinpaydar-binary/devops-ci-scripts
-          git checkout afshin/remove_kubectl_parameters
           cd devops-ci-scripts/k8s-build_tools
+          git checkout afshin/remove_kubectl_parameters
           ./release.sh deriv-com $GIT_TAG_NAME
 
       - name: Slack Notification 📣

@@ -86,8 +86,8 @@ jobs:
           echo ${{ secrets.KUBE_CONFIG_DATA }} | base64 --decode > ~/.kube/config
           export DOCKERHUB_ORGANISATION=${{ secrets.DOCKERHUB_ORGANISATION }}
           kubectl config set-context --current --namespace=deriv-com-production
-          git clone https://github.com/binary-com/devops-ci-scripts
           cd devops-ci-scripts/k8s-build_tools
+          git clone https://github.com/binary-com/devops-ci-scripts
           ./release.sh deriv-com $GIT_TAG_NAME
 
       - name: Slack Notification 📣
