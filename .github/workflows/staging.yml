@@ -85,11 +85,12 @@ jobs:
           mkdir ~/.kube
           echo ${{ secrets.KUBE_CONFIG_DATA }} > ~/.kube/config
           export DOCKERHUB_ORGANISATION=${{ secrets.DOCKERHUB_ORGANISATION }}
-          # kubectl config set-context --current --namespace=deriv-com-staging
+          kubectl config set-context --current --namespace=deriv-com-staging
           git clone https://github.com/afshinpaydar-binary/devops-ci-scripts
           cd devops-ci-scripts/k8s-build_tools
           git checkout afshin/remove_kubectl_parameters
-          ./release.sh deriv-com $GIT_TAG_NAME
+          kubectl get all --show-labels
+          #./release.sh deriv-com $GIT_TAG_NAME
 
       - name: Slack Notification 📣
         uses: 8398a7/action-slack@v3
